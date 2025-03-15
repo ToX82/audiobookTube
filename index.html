@@ -160,6 +160,19 @@
                 </div>
             </div>
         </template>
+
+        <!-- Banner Chiudibile per l'Installazione -->
+        <div id="installBanner" class="fixed top-0 left-0 right-0 p-2 bg-primary-50 dark:bg-gray-800 border-b border-primary-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-300 shadow-sm flex items-center justify-center transition-all z-50">
+            <div class="container mx-auto px-4 max-w-3xl flex items-center justify-between">
+                <div class="flex items-center">
+                    <iconify-icon icon="mdi:download" class="mr-1 text-primary-500 dark:text-primary-400"></iconify-icon>
+                    <span>Installa AudioBookTube sul tuo dispositivo</span>
+                </div>
+                <button id="closeInstallBanner" class="p-1 ml-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full">
+                    <iconify-icon icon="mdi:close" class="text-sm"></iconify-icon>
+                </button>
+            </div>
+        </div>
     </div>
 
     <script src="player.js"></script>
@@ -206,9 +219,23 @@
                 }
             });
 
-            // Add this to your existing service worker registration script
-            installButton.className = "fixed bottom-20 left-1/2 -translate-x-1/2 p-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl shadow-lg transition-colors";
-            installButton.innerHTML = '<iconify-icon icon="mdi:download" class="mr-2"></iconify-icon> Install App';
+            // Trasformiamo il pulsante in un banner chiudibile
+            installButton.className = "fixed top-0 left-0 right-0 p-2 bg-primary-50 dark:bg-gray-800 border-b border-primary-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-300 shadow-sm flex items-center justify-center transition-all z-50";
+            installButton.innerHTML = '<div class="container mx-auto px-4 max-w-3xl flex items-center justify-between"><div class="flex items-center"><iconify-icon icon="mdi:download" class="mr-1 text-primary-500 dark:text-primary-400"></iconify-icon> <span>Installa AudioBookTube sul tuo dispositivo</span></div><button id="closeInstallBanner" class="p-1 ml-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"><iconify-icon icon="mdi:close" class="text-sm"></iconify-icon></button></div>';
+
+            // Aggiungi il gestore per il pulsante di chiusura
+            document.getElementById('closeInstallBanner').addEventListener('click', (e) => {
+                e.stopPropagation(); // Previene l'attivazione del banner
+                installButton.style.display = 'none';
+
+                // Opzionale: salva una preferenza che l'utente ha chiuso il banner
+                localStorage.setItem('installBannerClosed', 'true');
+            });
+
+            // Controlla se l'utente ha già chiuso il banner in precedenza
+            if (localStorage.getItem('installBannerClosed') === 'true') {
+                installButton.style.display = 'none';
+            }
         }
     </script>
 </body>

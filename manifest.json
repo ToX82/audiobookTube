@@ -1,0 +1,23 @@
+{
+  "name": "AudioBookTube",
+  "short_name": "AudioBookTube",
+  "description": "YouTube AudioBooks Experience, redefined",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0ea5e9",
+  "theme_color": "#4285f4",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

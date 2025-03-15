@@ -3,10 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AudioBookTube - YouTube Audio Player</title>
+    <title>AudioBookTube - YouTube AudioBooks Experience, redefined</title>
+    <meta name="description" content="YouTube AudioBooks Experience, redefined">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
+
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4285f4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -154,5 +163,53 @@
     </div>
 
     <script src="player.js"></script>
+    <script>
+        // Registrazione del service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registrato con successo:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Registrazione Service Worker fallita:', error);
+                    });
+            });
+
+            // Logica per l'installazione dell'app
+            let deferredPrompt;
+            const installButton = document.createElement('button');
+            installButton.style.display = 'none';
+            installButton.textContent = 'Installa App';
+            document.body.appendChild(installButton);
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Previene la visualizzazione automatica del prompt
+                e.preventDefault();
+                // Salva l'evento per usarlo dopo
+                deferredPrompt = e;
+                // Mostra il pulsante di installazione
+                installButton.style.display = 'block';
+            });
+
+            installButton.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    // Mostra il prompt di installazione
+                    deferredPrompt.prompt();
+                    // Attende la scelta dell'utente
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`Utente ha scelto: ${outcome}`);
+                    // Non possiamo usare deferredPrompt di nuovo, lo resettiamo
+                    deferredPrompt = null;
+                    // Nascondi il pulsante
+                    installButton.style.display = 'none';
+                }
+            });
+
+            // Add this to your existing service worker registration script
+            installButton.className = "fixed bottom-20 left-1/2 -translate-x-1/2 p-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl shadow-lg transition-colors";
+            installButton.innerHTML = '<iconify-icon icon="mdi:download" class="mr-2"></iconify-icon> Install App';
+        }
+    </script>
 </body>
 </html>

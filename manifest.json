@@ -2,7 +2,7 @@
   "name": "AudioBookTube",
   "short_name": "AudioBookTube",
   "description": "YouTube AudioBooks Experience, redefined",
-  "start_url": "/index.html",
+  "start_url": "https://tox82.github.io/audiobookTube/",
   "display": "standalone",
   "background_color": "#0ea5e9",
   "theme_color": "#4285f4",

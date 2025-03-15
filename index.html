@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AudioBookTube - YouTube Audio Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style src="style.css"></style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 dark:text-white mb-2">AudioBookTube</h1>
+            <p class="text-gray-600 dark:text-gray-300">YouTube Audio Experience Redefined</p>
+        </div>
+
+        <!-- URL Input -->
+        <div class="mb-4 relative group">
+            <input
+                type="text"
+                id="urlInput"
+                class="w-full p-4 rounded-2xl shadow-lg border-2 border-transparent focus:border-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all"
+                placeholder="Enter YouTube URL or ID..."
+                autocomplete="off"
+            >
+            <iconify-icon
+                icon="mdi:youtube"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400 dark:text-gray-500"
+            ></iconify-icon>
+        </div>
+
+        <!-- History Section -->
+        <div id="historySection" class="mb-8 space-y-2 hidden">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2 flex items-center">
+                <iconify-icon icon="mdi:history" class="mr-2"></iconify-icon>
+                History
+            </h3>
+            <div id="historyList" class="space-y-2"></div>
+        </div>
+
+        <!-- Player Interface -->
+        <div id="playerInterface" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl w-[95%] max-w-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
+            <div class="mb-4">
+                <div class="mb-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <span id="currentTitle" class="truncate max-w-[80%] font-medium"></span>
+                    <span id="duration">0:00</span>
+                </div>
+                <div class="slider-container">
+                    <input
+                        type="range"
+                        id="seekBar"
+                        class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                        min="0"
+                        max="100"
+                        value="0"
+                    >
+                    <div id="sliderTooltip" class="slider-tooltip">0:00</div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="text-gray-600 dark:text-gray-300 text-sm font-medium">
+                    <span id="currentTime">0:00</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="skipBack" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                        <iconify-icon icon="mdi:rewind-30" class="text-2xl text-gray-600 dark:text-gray-300"></iconify-icon>
+                    </button>
+                    <button id="playPause" class="p-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl shadow-lg transition-colors">
+                        <iconify-icon icon="mdi:play" class="text-3xl"></iconify-icon>
+                    </button>
+                    <button id="skipForward" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                        <iconify-icon icon="mdi:fast-forward-30" class="text-2xl text-gray-600 dark:text-gray-300"></iconify-icon>
+                    </button>
+                </div>
+                <select id="speed" class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 text-gray-800 dark:text-white text-sm transition-colors">
+                    <option value="0.5">0.5x</option>
+                    <option value="1" selected>1x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2">2x</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Hidden YouTube Player -->
+        <div id="youtubePlayer" class="opacity-0 absolute top-0 left-0 w-0 h-0"></div>
+
+        <!-- Theme Toggle -->
+        <button id="themeToggle" class="fixed top-4 right-4 p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg transition-colors">
+            <iconify-icon id="sunIcon" icon="mdi:weather-sunny" class="text-xl text-yellow-500 hidden"></iconify-icon>
+            <iconify-icon id="moonIcon" icon="mdi:weather-night" class="text-xl text-blue-400"></iconify-icon>
+        </button>
+
+        <!-- Disclaimer -->
+        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
+            Disclaimer: This is an experimental tool for personal use only.
+        </p>
+
+        <!-- History Item Template -->
+        <template id="historyItemTemplate">
+            <div class="group flex items-center p-3 rounded-xl bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer shadow-sm border border-transparent">
+                <div class="relative">
+                    <img class="w-16 h-12 rounded-lg object-cover mr-3" src="">
+                    <div class="play-indicator absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                        <iconify-icon icon="mdi:play" class="text-white text-2xl"></iconify-icon>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-sm font-medium text-gray-900 dark:text-white truncate video-title"></span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 ml-2 video-duration"></span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-primary-500 dark:text-primary-400 video-timestamp"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">•</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 video-age">Recently played</span>
+                        </div>
+                        <button class="delete-btn p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                            <iconify-icon icon="mdi:close" class="text-sm text-gray-500 dark:text-gray-400"></iconify-icon>
+                        </button>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded h-1 mt-1">
+                        <div class="bg-primary-500 dark:bg-primary-400 h-1 rounded progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <script src="player.js"></script>
+</body>
+</html>

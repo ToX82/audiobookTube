@@ -93,8 +93,6 @@ class AudioPlayer {
 
     createPlayer(videoId, initialTime = null) {
         this.elements.loadingOverlay.classList.remove('hidden');
-        this.elements.urlInput.classList.add('opacity-50', 'cursor-wait');
-        this.elements.urlInput.disabled = true;
 
         if (this.player) this.player.destroy();
 
@@ -126,7 +124,6 @@ class AudioPlayer {
         this.elements.currentTitle.textContent = videoTitle;
         this.updateHistory(videoTitle, savedTime, this.player.getDuration());
         this.elements.urlInput.classList.remove('opacity-50', 'cursor-wait');
-        this.elements.urlInput.disabled = false;
     }
 
     handlePlayerStateChange(event) {

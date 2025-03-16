@@ -30,39 +30,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
     background: #0284c7;
 }
 
-.dark .slider-tooltip {
-    background-color: rgba(255, 255, 255, 0.9);
-    color: #1f2937;
-}
-
-/* Active history item animation */
-.pulse-blue {
-    position: relative;
-}
-
-.pulse-blue::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: #0ea5e9;
-    border-radius: 4px 0 0 4px;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
-}
-
-.pulse-animation {
-    animation: pulse 2s infinite ease-in-out;
-    will-change: opacity;
-}
-
-/* Tooltip per lo slider */
 .slider-tooltip {
     position: absolute;
     bottom: 24px;
@@ -80,4 +47,54 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .slider-container {
     position: relative;
+}
+
+.group:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.dark [data-tooltip]:hover::after {
+    background: rgba(255,255,255,0.9);
+    color: #1f2937;
+}
+
+#playerInterface {
+    transition: transform 0.3s ease;
+}
+
+@media (max-width: 640px) {
+    #playerInterface {
+        width: 100%;
+        bottom: 0;
+        border-radius: 0;
+        transform: none !important;
+    }
+
+    .controls-container {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+.dark .video-title {
+    color: #f3f4f6;
 }

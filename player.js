@@ -1,34 +1,21 @@
-/**
- * AudioPlayer Class
- * Manages YouTube audio playback with custom controls and history tracking
- */
 class AudioPlayer {
-    /**
-     * Initialize the AudioPlayer with default settings and UI elements
-     */
     constructor() {
-        // Constants
         this.HISTORY_KEY = 'ytAudioHistory';
         this.MAX_HISTORY_ITEMS = 20;
         this.videoRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/;
         this.SLIDER_THUMB_WIDTH = 16;
 
-        // Player state
         this.player = null;
         this.currentVideoId = null;
         this.isPlaying = false;
         this.updateInterval = null;
 
-        // Initialize components
         this.initElements();
         this.initEventListeners();
         this.initTheme();
         this.renderHistory();
     }
 
-    /**
-     * Initialize all DOM element references
-     */
     initElements() {
         this.elements = {
             urlInput: document.getElementById('urlInput'),
@@ -44,13 +31,11 @@ class AudioPlayer {
             sliderTooltip: document.getElementById('sliderTooltip'),
             themeToggle: document.getElementById('themeToggle'),
             sunIcon: document.getElementById('sunIcon'),
-            moonIcon: document.getElementById('moonIcon')
+            moonIcon: document.getElementById('moonIcon'),
+            loadingOverlay: document.getElementById('loadingOverlay')
         };
     }
 
-    /**
-     * Configure all event listeners for player controls
-     */
     initEventListeners() {
         this.elements.urlInput.addEventListener('input', this.handleUrlInput.bind(this));
         this.elements.urlInput.addEventListener('keypress', this.handleUrlEnter.bind(this));
@@ -64,20 +49,32 @@ class AudioPlayer {
         document.getElementById('skipBack').addEventListener('click', this.skipBack.bind(this));
         document.getElementById('skipForward').addEventListener('click', this.skipForward.bind(this));
         this.elements.themeToggle.addEventListener('click', this.toggleTheme.bind(this));
+
+        document.getElementById('clearHistory').addEventListener('click', () => {
+            localStorage.removeItem(this.HISTORY_KEY);
+            this.renderHistory();
+        });
+
+        // Mobile touch gestures
+        let touchStartX = 0;
+        this.elements.seekBar.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        this.elements.seekBar.addEventListener('touchend', (e) => {
+            const deltaX = e.changedTouches[0].clientX - touchStartX;
+            if (Math.abs(deltaX) > 30) {
+                this.player.seekTo(this.player.getCurrentTime() + (deltaX > 0 ? 30 : -30));
+            }
+        });
     }
 
-    /**
-     * Initialize theme based on saved preference
-     */
     initTheme() {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.classList.add(savedTheme);
         this.updateThemeIcons(savedTheme);
     }
 
-    /**
-     * Toggle between light and dark themes
-     */
     toggleTheme() {
         const isDark = document.documentElement.classList.contains('dark');
         const newTheme = isDark ? 'light' : 'dark';
@@ -89,21 +86,16 @@ class AudioPlayer {
         this.updateThemeIcons(newTheme);
     }
 
-    /**
-     * Update theme icons based on current theme
-     * @param {string} theme - The current theme ('light' or 'dark')
-     */
     updateThemeIcons(theme) {
         this.elements.sunIcon.classList.toggle('hidden', theme !== 'light');
         this.elements.moonIcon.classList.toggle('hidden', theme !== 'dark');
     }
 
-    /**
-     * Create a new YouTube player instance
-     * @param {string} videoId - YouTube video ID
-     * @param {number|null} initialTime - Starting position in seconds
-     */
     createPlayer(videoId, initialTime = null) {
+        this.elements.loadingOverlay.classList.remove('hidden');
+        this.elements.urlInput.classList.add('opacity-50', 'cursor-wait');
+        this.elements.urlInput.disabled = true;
+
         if (this.player) this.player.destroy();
 
         this.currentVideoId = videoId;
@@ -123,25 +115,20 @@ class AudioPlayer {
         });
     }
 
-    /**
-     * Handle player ready event
-     * @param {number|null} initialTime - Starting position in seconds
-     */
     handlePlayerReady(initialTime) {
         const savedTime = initialTime || localStorage.getItem(this.currentVideoId) || 0;
         this.player.seekTo(savedTime);
         this.elements.playerInterface.classList.remove('hidden');
+        this.elements.loadingOverlay.classList.add('hidden');
         this.updatePlayerState();
 
         const videoTitle = this.player.getVideoData().title;
         this.elements.currentTitle.textContent = videoTitle;
         this.updateHistory(videoTitle, savedTime, this.player.getDuration());
+        this.elements.urlInput.classList.remove('opacity-50', 'cursor-wait');
+        this.elements.urlInput.disabled = false;
     }
 
-    /**
-     * Handle player state changes (play/pause)
-     * @param {Object} event - YouTube player state change event
-     */
     handlePlayerStateChange(event) {
         this.isPlaying = event.data === YT.PlayerState.PLAYING;
         this.elements.playPause.querySelector('iconify-icon').icon =
@@ -155,38 +142,22 @@ class AudioPlayer {
         }
     }
 
-    /**
-     * Toggle play/pause state
-     */
     togglePlay() {
         this.isPlaying ? this.player.pauseVideo() : this.player.playVideo();
     }
 
-    /**
-     * Skip backward 30 seconds
-     */
     skipBack() {
         this.player.seekTo(this.player.getCurrentTime() - 30);
     }
 
-    /**
-     * Skip forward 30 seconds
-     */
     skipForward() {
         this.player.seekTo(this.player.getCurrentTime() + 30);
     }
 
-    /**
-     * Handle playback speed change
-     */
     handleSpeedChange() {
         this.player.setPlaybackRate(parseFloat(this.elements.speed.value));
     }
 
-    /**
-     * Handle seek bar input during drag
-     * @param {Event} event - Input event
-     */
     handleSeekInput(event) {
         const seekPercent = parseInt(event.target.value);
         const seekTime = this.calculateSeekTime(seekPercent);
@@ -194,27 +165,16 @@ class AudioPlayer {
         this.elements.sliderTooltip.style.opacity = '1';
     }
 
-    /**
-     * Handle seek bar hover
-     * @param {Event} event - Mouse event
-     */
     handleSeekHover(event) {
         const seekTime = (event.offsetX / event.target.offsetWidth) * this.player.getDuration();
         this.updateSliderTooltip(event, seekTime);
         this.elements.sliderTooltip.style.opacity = '1';
     }
 
-    /**
-     * Handle mouse leaving seek bar
-     */
     handleSeekLeave() {
         this.elements.sliderTooltip.style.opacity = '0';
     }
 
-    /**
-     * Handle seek bar change (after drag complete)
-     * @param {Event} event - Change event
-     */
     handleSeekChange(event) {
         if (!this.player) return;
         const seekPercent = parseInt(event.target.value);
@@ -223,20 +183,10 @@ class AudioPlayer {
         this.elements.sliderTooltip.style.opacity = '0';
     }
 
-    /**
-     * Calculate seek time from percentage
-     * @param {number} seekPercent - Percentage of seek bar
-     * @returns {number} Time in seconds
-     */
     calculateSeekTime(seekPercent) {
         return (seekPercent / 100) * this.player.getDuration();
     }
 
-    /**
-     * Update slider tooltip position and content
-     * @param {Event} event - Mouse or input event
-     * @param {number} time - Time to display in tooltip
-     */
     updateSliderTooltip(event, time) {
         const slider = event.target;
         const rect = slider.getBoundingClientRect();
@@ -249,9 +199,6 @@ class AudioPlayer {
         this.elements.sliderTooltip.textContent = this.formatTime(time);
     }
 
-    /**
-     * Update player UI with current state
-     */
     updatePlayerState() {
         const currentTime = this.player.getCurrentTime();
         const duration = this.player.getDuration();
@@ -268,20 +215,11 @@ class AudioPlayer {
         );
     }
 
-    /**
-     * Save current playback position to localStorage
-     */
     savePlaybackState() {
         localStorage.setItem(this.currentVideoId, this.player.getCurrentTime());
         this.renderHistory();
     }
 
-    /**
-     * Update history with current video information
-     * @param {string} videoTitle - Title of the video
-     * @param {number} currentTime - Current playback position
-     * @param {number} duration - Total video duration
-     */
     updateHistory(videoTitle, currentTime, duration) {
         try {
             const history = JSON.parse(localStorage.getItem(this.HISTORY_KEY)) || [];
@@ -310,9 +248,6 @@ class AudioPlayer {
         }
     }
 
-    /**
-     * Render history items in the UI
-     */
     renderHistory() {
         try {
             const history = JSON.parse(localStorage.getItem(this.HISTORY_KEY)) || [];
@@ -327,20 +262,14 @@ class AudioPlayer {
         }
     }
 
-    /**
-     * Create a history item element
-     * @param {Object} item - History item data
-     * @param {HTMLTemplateElement} template - Template for history item
-     */
     createHistoryItem(item, template) {
         const clone = template.content.cloneNode(true);
         const progressPercent = (item.timestamp / item.duration) * 100;
         const element = clone.querySelector('.group');
 
         if (item.id === this.currentVideoId) {
-            element.classList.add('pulse-blue', 'border-l-4', 'border-primary-500');
+            element.classList.add('border-l-4', 'border-primary-500');
             const indicator = element.querySelector('.play-indicator');
-            indicator.classList.add('opacity-100', 'pulse-animation');
             indicator.querySelector('iconify-icon').setAttribute('icon', this.isPlaying ? 'mdi:pause' : 'mdi:play');
         }
 
@@ -364,10 +293,6 @@ class AudioPlayer {
         this.elements.historyList.appendChild(clone);
     }
 
-    /**
-     * Remove a video from history
-     * @param {string} videoId - YouTube video ID to remove
-     */
     removeFromHistory(videoId) {
         const history = JSON.parse(localStorage.getItem(this.HISTORY_KEY)) || [];
         const filtered = history.filter(item => item.id !== videoId);
@@ -375,30 +300,23 @@ class AudioPlayer {
         this.renderHistory();
     }
 
-    /**
-     * Validate URL input
-     */
     handleUrlInput() {
         const isValid = this.videoRegex.test(this.elements.urlInput.value);
         this.elements.urlInput.classList.toggle('border-red-500', !isValid);
     }
 
-    /**
-     * Handle Enter key press in URL input
-     * @param {KeyboardEvent} e - Keyboard event
-     */
     handleUrlEnter(e) {
         if (e.key === 'Enter') {
             const match = this.elements.urlInput.value.match(this.videoRegex);
-            if (match) this.createPlayer(match[1]);
+            if (match) {
+                this.createPlayer(match[1]);
+            } else {
+                document.getElementById('urlError').classList.remove('hidden');
+                setTimeout(() => document.getElementById('urlError').classList.add('hidden'), 2000);
+            }
         }
     }
 
-    /**
-     * Format seconds into human-readable time
-     * @param {number} seconds - Time in seconds
-     * @returns {string} Formatted time string (H:MM:SS or M:SS)
-     */
     formatTime(seconds) {
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
@@ -409,27 +327,19 @@ class AudioPlayer {
             `${minutes}:${secs.toString().padStart(2, '0')}`;
     }
 
-    /**
-     * Format timestamp into relative time
-     * @param {number} timestamp - Unix timestamp
-     * @returns {string} Relative time string (e.g., "5m fa")
-     */
     formatTimeAgo(timestamp) {
         const diff = Date.now() - timestamp;
         const minutes = Math.floor(diff / 60000);
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
 
-        if (days > 0) return `${days}d fa`;
-        if (hours > 0) return `${hours}h fa`;
-        if (minutes > 0) return `${minutes}m fa`;
-        return 'Ora';
+        if (days > 0) return `${days}d ago`;
+        if (hours > 0) return `${hours}h ago`;
+        if (minutes > 0) return `${minutes}m ago`;
+        return 'Now';
     }
 }
 
-/**
- * Initialize the application when the DOM is ready
- */
 document.addEventListener('DOMContentLoaded', () => {
     new AudioPlayer();
 });

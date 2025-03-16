@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AudioBookTube - YouTube AudioBooks Experience, redefined</title>
-    <meta name="description" content="YouTube AudioBooks Experience, redefined">
+    <title>AudioBookTube - YouTube AudioBooks Experience, simplified</title>
+    <meta name="description" content="YouTube AudioBooks Experience, simplified">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -45,41 +45,46 @@
     <div class="container mx-auto px-4 py-8 max-w-3xl">
         <!-- Header -->
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 dark:text-white mb-2">AudioBookTube</h1>
-            <p class="text-gray-600 dark:text-gray-300">YouTube Audio Experience Redefined</p>
+            <div class="inline-block bg-gradient-to-r from-primary-500 to-primary-700 p-3 rounded-2xl mb-4 shadow-lg">
+                <h1 class="text-4xl font-bold text-white mb-2">AudioBookTube</h1>
+            </div>
+            <p class="text-gray-600 dark:text-gray-300 font-medium">YouTube AudioBook Experience, simplified</p>
         </div>
 
         <!-- URL Input -->
-        <div class="mb-4 relative group">
+        <div class="mb-4 relative group transition-transform duration-300 hover:scale-[1.01]">
             <input
                 type="text"
                 id="urlInput"
-                class="w-full p-4 rounded-2xl shadow-lg border-2 border-transparent focus:border-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all"
-                placeholder="Enter YouTube URL or ID..."
+                class="w-full p-4 rounded-2xl shadow-lg border-2 border-transparent focus:border-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all pr-12 placeholder-gray-400 dark:placeholder-gray-500"
+                placeholder="Incolla URL YouTube..."
                 autocomplete="off"
             >
             <iconify-icon
                 icon="mdi:youtube"
-                class="absolute right-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400 dark:text-gray-500"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400 dark:text-gray-500 transition-colors group-hover:text-primary-500"
             ></iconify-icon>
         </div>
+        <div id="urlError" class="text-red-500 text-sm mt-1 pl-2 hidden">Invalid URL</div>
 
         <!-- History Section -->
         <div id="historySection" class="mb-8 space-y-2 hidden">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2 flex items-center">
-                <iconify-icon icon="mdi:history" class="mr-2"></iconify-icon>
-                History
-            </h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
+                    <iconify-icon icon="mdi:history" class="mr-2"></iconify-icon>
+                    History
+                </h3>
+                <button id="clearHistory" class="text-sm text-primary-500 hover:text-primary-600 flex items-center">
+                    <iconify-icon icon="mdi:trash-can-outline" class="mr-1"></iconify-icon>
+                    Clear
+                </button>
+            </div>
             <div id="historyList" class="space-y-2"></div>
         </div>
 
         <!-- Player Interface -->
-        <div id="playerInterface" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl w-[95%] max-w-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
+        <div id="playerInterface" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl w-[95%] max-w-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:transform hover:-translate-y-1">
             <div class="mb-4">
-                <div class="mb-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <span id="currentTitle" class="truncate max-w-[80%] font-medium"></span>
-                    <span id="duration">0:00</span>
-                </div>
                 <div class="slider-container">
                     <input
                         type="range"
@@ -92,18 +97,20 @@
                     <div id="sliderTooltip" class="slider-tooltip">0:00</div>
                 </div>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between controls-container">
                 <div class="text-gray-600 dark:text-gray-300 text-sm font-medium">
                     <span id="currentTime">0:00</span>
+                    /
+                    <span id="duration" class="text-gray-500 dark:text-gray-100">0:00</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button id="skipBack" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                    <button id="skipBack" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Rewind 30s">
                         <iconify-icon icon="mdi:rewind-30" class="text-2xl text-gray-600 dark:text-gray-300"></iconify-icon>
                     </button>
-                    <button id="playPause" class="p-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl shadow-lg transition-colors">
+                    <button id="playPause" class="p-2 pb-1 bg-primary-500 hover:bg-primary-600 text-white rounded-xl shadow-lg transition-colors">
                         <iconify-icon icon="mdi:play" class="text-3xl"></iconify-icon>
                     </button>
-                    <button id="skipForward" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                    <button id="skipForward" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Forward 30s">
                         <iconify-icon icon="mdi:fast-forward-30" class="text-2xl text-gray-600 dark:text-gray-300"></iconify-icon>
                     </button>
                 </div>
@@ -116,11 +123,18 @@
             </div>
         </div>
 
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="animate-spin text-4xl text-white">
+                <iconify-icon icon="mdi:loading"></iconify-icon>
+            </div>
+        </div>
+
         <!-- Hidden YouTube Player -->
         <div id="youtubePlayer" class="opacity-0 absolute top-0 left-0 w-0 h-0"></div>
 
         <!-- Theme Toggle -->
-        <button id="themeToggle" class="fixed top-4 right-4 p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg transition-colors">
+        <button id="themeToggle" class="fixed top-4 right-4 p-2 pb-1 rounded-full bg-white dark:bg-gray-800 shadow-lg transition-colors">
             <iconify-icon id="sunIcon" icon="mdi:weather-sunny" class="text-xl text-yellow-500 hidden"></iconify-icon>
             <iconify-icon id="moonIcon" icon="mdi:weather-night" class="text-xl text-blue-400"></iconify-icon>
         </button>
@@ -132,17 +146,17 @@
 
         <!-- History Item Template -->
         <template id="historyItemTemplate">
-            <div class="group flex items-center p-3 rounded-xl bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer shadow-sm border border-transparent">
+            <div class="group flex items-center p-3 rounded-xl bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all cursor-pointer shadow-sm border border-transparent history-item">
                 <div class="relative">
                     <img class="w-16 h-12 rounded-lg object-cover mr-3" src="">
-                    <div class="play-indicator absolute inset-0 flex items-center justify-center mr-3 bg-black bg-opacity-30 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div class="play-indicator absolute inset-0 flex items-center justify-center mr-3 bg-black bg-opacity-30 rounded-lg">
                         <iconify-icon icon="mdi:play" class="text-white text-2xl"></iconify-icon>
                     </div>
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-1">
-                        <span class="text-sm font-medium text-gray-900 dark:text-white truncate video-title"></span>
-                        <span class="text-xs text-gray-500 dark:text-gray-400 ml-2 video-duration"></span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate video-title"></span>
+                        <span class="text-xs text-gray-500 dark:text-gray-100 ml-2 video-duration"></span>
                     </div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2">
@@ -164,7 +178,6 @@
 
     <script src="player.js"></script>
     <script>
-        // Registrazione del service worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js');
         }

@@ -41,7 +41,7 @@
     </script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-300 pb-20">
     <div class="container mx-auto px-4 py-8 max-w-3xl">
         <!-- Header -->
         <div class="text-center mb-8">
@@ -68,7 +68,7 @@
         <div id="urlError" class="text-red-500 text-sm mt-1 pl-2 hidden">Invalid URL</div>
 
         <!-- History Section -->
-        <div id="historySection" class="mb-8 space-y-2 hidden">
+        <div id="historySection" class="mb-20 space-y-2 hidden">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
                     <iconify-icon icon="mdi:history" class="mr-2"></iconify-icon>
@@ -83,7 +83,7 @@
         </div>
 
         <!-- Player Interface -->
-        <div id="playerInterface" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl w-[95%] max-w-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:transform hover:-translate-y-1">
+        <div id="playerInterface" class="hidden fixed bottom-4 left-0 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl w-[95%] max-w-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:transform hover:-translate-y-1 z-20">
             <div class="mb-4">
                 <div class="slider-container">
                     <input
@@ -140,7 +140,7 @@
         </button>
 
         <!-- Disclaimer -->
-        <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-4 opacity-70">
+        <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-4 opacity-70 z-10">
             This is an experimental tool for personal use only.
         </p>
 

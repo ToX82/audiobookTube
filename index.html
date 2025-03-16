@@ -57,7 +57,7 @@
                 type="text"
                 id="urlInput"
                 class="w-full p-4 rounded-2xl shadow-lg border-2 border-transparent focus:border-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all pr-12 placeholder-gray-400 dark:placeholder-gray-500"
-                placeholder="Incolla URL YouTube..."
+                placeholder="Paste a YouTube URL and press Enter..."
                 autocomplete="off"
             >
             <iconify-icon
@@ -140,8 +140,8 @@
         </button>
 
         <!-- Disclaimer -->
-        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
-            Disclaimer: This is an experimental tool for personal use only.
+        <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-4 opacity-70">
+            This is an experimental tool for personal use only.
         </p>
 
         <!-- History Item Template -->
@@ -156,12 +156,14 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-1">
                         <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate video-title"></span>
-                        <span class="text-xs text-gray-500 dark:text-gray-100 ml-2 video-duration"></span>
                     </div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2">
                             <span class="text-xs text-primary-500 dark:text-primary-400 video-timestamp"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-100">/</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-100 video-duration"></span>
                             <span class="text-xs text-gray-500 dark:text-gray-400">•</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Last played</span>
                             <span class="text-xs text-gray-500 dark:text-gray-400 video-age">Recently played</span>
                         </div>
                         <button class="delete-btn p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">

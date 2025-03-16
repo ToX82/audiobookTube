@@ -94,7 +94,9 @@ class AudioPlayer {
     createPlayer(videoId, initialTime = null) {
         this.elements.loadingOverlay.classList.remove('hidden');
 
-        if (this.player) this.player.destroy();
+        if (this.player) {
+            this.player.destroy();
+        }
 
         this.currentVideoId = videoId;
         this.player = new YT.Player('youtubePlayer', {
@@ -173,7 +175,9 @@ class AudioPlayer {
     }
 
     handleSeekChange(event) {
-        if (!this.player) return;
+        if (!this.player) {
+            return;
+        }
         const seekPercent = parseInt(event.target.value);
         const seekTime = (seekPercent / 100) * this.player.getDuration();
         this.player.seekTo(seekTime);
@@ -191,7 +195,7 @@ class AudioPlayer {
             event.clientX - rect.left :
             (slider.value / slider.max) * rect.width;
 
-        position = Math.max(this.SLIDER_THUMB_WIDTH/2, Math.min(position, rect.width - this.SLIDER_THUMB_WIDTH/2));
+        position = Math.max(this.SLIDER_THUMB_WIDTH / 2, Math.min(position, rect.width - this.SLIDER_THUMB_WIDTH / 2));
         this.elements.sliderTooltip.style.left = `${position}px`;
         this.elements.sliderTooltip.textContent = this.formatTime(time);
     }
@@ -235,7 +239,9 @@ class AudioPlayer {
                 history[existingIndex] = newEntry;
             } else {
                 history.unshift(newEntry);
-                if (history.length > this.MAX_HISTORY_ITEMS) history.pop();
+                if (history.length > this.MAX_HISTORY_ITEMS) {
+                    history.pop();
+                }
             }
 
             localStorage.setItem(this.HISTORY_KEY, JSON.stringify(history));
@@ -330,9 +336,15 @@ class AudioPlayer {
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
 
-        if (days > 0) return `${days}d ago`;
-        if (hours > 0) return `${hours}h ago`;
-        if (minutes > 0) return `${minutes}m ago`;
+        if (days > 0) {
+            return `${days}d ago`;
+        }
+        if (hours > 0) {
+            return `${hours}h ago`;
+        }
+        if (minutes > 0) {
+            return `${minutes}m ago`;
+        }
         return 'Now';
     }
 }

@@ -1,35 +1,32 @@
 html {
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease;
 }
-
 input[type="range"] {
     -webkit-appearance: none;
     height: 6px;
     border-radius: 6px;
-    background: #e5e7eb;
+    background: #E5E7EB;
 }
-
 .dark input[type="range"] {
-    background: #4b5563;
+    background: #4B5563;
 }
-
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: #0ea5e9;
+    background: #0EA5E9;
     cursor: pointer;
     border: 2px solid white;
     transition: all 0.3s ease;
 }
-
 input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.2);
-    background: #0284c7;
+    background: #0284C7;
 }
-
 .slider-tooltip {
     position: absolute;
     bottom: 24px;
@@ -44,57 +41,50 @@ input[type="range"]::-webkit-slider-thumb:hover {
     transition: opacity 0.1s ease;
     z-index: 10;
 }
-
 .slider-container {
     position: relative;
 }
-
 .group:hover {
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 }
-
 [data-tooltip] {
     position: relative;
 }
-
 [data-tooltip]:hover::after {
     content: attr(data-tooltip);
     position: absolute;
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0,0,0,0.8);
+    background: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
     white-space: nowrap;
 }
-
 .dark [data-tooltip]:hover::after {
-    background: rgba(255,255,255,0.9);
-    color: #1f2937;
+    background: rgba(255, 255, 255, 0.9);
+    color: #1F2937;
 }
-
 #playerInterface {
     transition: transform 0.3s ease;
 }
+.dark .video-title {
+    color: #F3F4F6;
+}
 
 @media (max-width: 640px) {
+
     #playerInterface {
         width: 100%;
         bottom: 0;
         border-radius: 0;
         transform: none !important;
     }
-
     .controls-container {
         flex-direction: column;
         gap: 12px;
     }
-}
-
-.dark .video-title {
-    color: #f3f4f6;
 }

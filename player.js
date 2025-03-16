@@ -71,6 +71,7 @@ class AudioPlayer {
 
     initTheme() {
         const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.classList.remove('light', 'dark');
         document.documentElement.classList.add(savedTheme);
         this.updateThemeIcons(savedTheme);
     }
@@ -82,7 +83,6 @@ class AudioPlayer {
         document.documentElement.classList.remove('dark', 'light');
         document.documentElement.classList.add(newTheme);
         localStorage.setItem('theme', newTheme);
-
         this.updateThemeIcons(newTheme);
     }
 

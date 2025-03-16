@@ -1,3 +1,7 @@
+html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 input[type="range"] {
     -webkit-appearance: none;
     height: 6px;
@@ -11,18 +15,24 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     width: 16px;
     height: 16px;
     border-radius: 50%;
     background: #0ea5e9;
     cursor: pointer;
-    border: none;
+    border: 2px solid white;
     transition: all 0.3s ease;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.2);
     background: #0284c7;
+}
+
+.dark .slider-tooltip {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #1f2937;
 }
 
 /* Active history item animation */
@@ -49,6 +59,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .pulse-animation {
     animation: pulse 2s infinite ease-in-out;
+    will-change: opacity;
 }
 
 /* Tooltip per lo slider */

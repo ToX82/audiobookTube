@@ -39,7 +39,7 @@
             }
         }
     </script>
-    <style src="style.css"></style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-300">
     <div class="container mx-auto px-4 py-8 max-w-3xl">
@@ -166,7 +166,7 @@
     <script>
         // Registrazione del service worker
         if ('serviceWorker' in navigator) {
-            // ... rimuovere tutto il codice del service worker ...
+            navigator.serviceWorker.register('service-worker.js');
         }
     </script>
 </body>

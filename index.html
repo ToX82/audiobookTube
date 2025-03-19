@@ -51,19 +51,23 @@
             <p class="text-gray-600 dark:text-gray-300 font-medium">YouTube AudioBook Experience, simplified</p>
         </div>
 
-        <!-- URL Input -->
+        <!-- Search Input -->
         <div class="mb-4 relative group transition-transform duration-300 hover:scale-[1.01]">
-            <input
-                type="text"
-                id="urlInput"
-                class="w-full p-4 rounded-2xl shadow-lg border-2 border-transparent focus:border-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all pr-12 placeholder-gray-400 dark:placeholder-gray-500"
-                placeholder="Paste a YouTube URL and press Enter..."
-                autocomplete="off"
-            >
-            <iconify-icon
-                icon="mdi:youtube"
-                class="absolute right-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400 dark:text-gray-500 transition-colors group-hover:text-primary-500"
-            ></iconify-icon>
+            <form id="universalForm" onsubmit="handleUniversalInput(event)">
+                <input
+                    type="text"
+                    id="urlInput"
+                    class="w-full p-4 rounded-2xl shadow-lg border-2 border-transparent focus:border-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all pr-12 placeholder-gray-400 dark:placeholder-gray-500"
+                    placeholder="Search for a book title or paste a YouTube URL..."
+                    autocomplete="off"
+                >
+                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2">
+                    <iconify-icon
+                        icon="mdi:magnify"
+                        class="text-2xl text-gray-400 dark:text-gray-500 transition-colors group-hover:text-primary-500"
+                    ></iconify-icon>
+                </button>
+            </form>
         </div>
         <div id="urlError" class="text-red-500 text-sm mt-1 pl-2 hidden">Invalid URL</div>
 
@@ -176,6 +180,9 @@
                 </div>
             </div>
         </template>
+
+        <!-- Search Results -->
+        <div id="resultsContainer" class="space-y-3" aria-live="polite"></div>
     </div>
 
     <script src="player.js"></script>
@@ -184,5 +191,8 @@
             navigator.serviceWorker.register('service-worker.js');
         }
     </script>
+
+    <script src="public/js/search.js"></script>
+    <script src="public/js/main.js"></script>
 </body>
 </html>

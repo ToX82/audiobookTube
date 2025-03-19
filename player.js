@@ -14,6 +14,16 @@ class AudioPlayer {
         this.initEventListeners();
         this.initTheme();
         this.renderHistory();
+
+        // Modificato per usare un listener persistente
+        this.playVideoHandler = (e) => this.handlePlayVideo(e);
+        document.addEventListener('playVideo', this.playVideoHandler);
+
+        // Aggiunto listener per pulire l'interfaccia
+        document.addEventListener('searchResultsCleared', (e) => {
+            this.clearSearchResults();
+            this.toggleSearchInterface(false);
+        });
     }
 
     initElements() {
@@ -346,6 +356,162 @@ class AudioPlayer {
             return `${minutes}m ago`;
         }
         return 'Now';
+    }
+
+    // Aggiunto metodo per gestire l'evento playVideo
+    handlePlayVideo(e) {
+        this.toggleSearchInterface(false);
+        this.createPlayer(e.detail.videoId);
+    }
+
+    // Aggiunto metodo per la pulizia
+    destroy() {
+        document.removeEventListener('playVideo', this.playVideoHandler);
+    }
+
+    // Aggiunto metodo per gestire l'interfaccia
+    toggleSearchInterface(show = true) {
+        const searchContainer = document.getElementById('searchContainer');
+        const mainInterface = document.getElementById('mainInterface');
+        const searchInput = document.getElementById('searchInput');
+
+        if (searchContainer && mainInterface) {
+            if (!show) {
+                if (searchInput) searchInput.value = '';
+                searchContainer.classList.add('hidden');
+                mainInterface.classList.remove('hidden');
+            } else {
+                searchContainer.classList.remove('hidden');
+                mainInterface.classList.add('hidden');
+            }
+        }
+    }
+
+    // Nuovo metodo per pulire i risultati di ricerca
+    clearSearchResults() {
+        console.log("AudioPlayer: pulizia risultati");
+
+        // 1. Rimuovi tutti gli elementi con data-video-id (risultati di ricerca)
+        document.querySelectorAll('[data-video-id]').forEach(el => {
+            console.log("Rimozione elemento:", el);
+            el.remove();
+        });
+
+        // 2. Nascondi qualsiasi contenitore di risultati
+        const possibleContainers = [
+            '.search-results',
+            '#searchResults',
+            '#searchContainer',
+            '.results-container',
+            '[role="search"]',
+            '.search-wrapper'
+        ];
+
+        possibleContainers.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            console.log(`Trovati ${elements.length} elementi per ${selector}`);
+            elements.forEach(el => {
+                el.style.display = 'none';
+                el.classList.add('hidden');
+                // Svuota il contenuto
+                el.innerHTML = '';
+            });
+        });
+
+        // 3. Forza un refresh del layout
+        setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 100);
+    }
+
+    /**
+     * Initialize the audio player with default settings
+     *
+     * @returns {HTMLElement} - The configured player element
+     */
+    initializePlayer() {
+        const player = document.getElementById('audioPlayer');
+        this.configurePlayerSettings(player);
+        this.setupPlayerEvents(player);
+        this.setupVolumeControls(player);
+        this.setupPlaylistControls(player);
+        return player;
+    }
+
+    /**
+     * Configure player with saved settings
+     *
+     * @param {HTMLElement} player - The audio player element
+     */
+    configurePlayerSettings(player) {
+        player.autoplay = localStorage.getItem('autoplay') === 'true';
+        player.volume = parseFloat(localStorage.getItem('volume') || 0.5);
+    }
+
+    /**
+     * Setup all player event listeners
+     *
+     * @param {HTMLElement} player - The audio player element
+     */
+    setupPlayerEvents(player) {
+        player.addEventListener('play', function() {
+            this.togglePlayPauseButtons(true);
+            this.updateNowPlaying();
+        }.bind(this));
+
+        player.addEventListener('pause', function() {
+            this.togglePlayPauseButtons(false);
+        }.bind(this));
+
+        // Altri event listener...
+    }
+
+    /**
+     * Toggle play/pause button visibility
+     *
+     * @param {boolean} isPlaying - Whether audio is playing
+     */
+    togglePlayPauseButtons(isPlaying) {
+        document.querySelector('.play-button').classList.toggle('hidden', isPlaying);
+        document.querySelector('.pause-button').classList.toggle('hidden', !isPlaying);
+    }
+
+    /**
+     * Setup volume control event listeners
+     *
+     * @param {HTMLElement} player - The audio player element
+     */
+    setupVolumeControls(player) {
+        document.querySelector('.volume-up').addEventListener('click', function() {
+            this.adjustVolume(player, 0.1);
+        }.bind(this));
+
+        document.querySelector('.volume-down').addEventListener('click', function() {
+            this.adjustVolume(player, -0.1);
+        }.bind(this));
+    }
+
+    /**
+     * Adjust player volume and save setting
+     *
+     * @param {HTMLElement} player - The audio player element
+     * @param {number} delta - Amount to adjust volume
+     */
+    adjustVolume(player, delta) {
+        let newVolume = player.volume + delta;
+        newVolume = Math.min(1, Math.max(0, newVolume));
+
+        player.volume = newVolume;
+        localStorage.setItem('volume', newVolume);
+    }
+
+    /**
+     * Setup playlist control event listeners
+     *
+     * @param {HTMLElement} player - The audio player element
+     */
+    setupPlaylistControls(player) {
+        // Implementazione gestione playlist
     }
 }
 

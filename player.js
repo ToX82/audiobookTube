@@ -13,6 +13,9 @@ class AudioPlayer {
         this.initElements();
         this.initEventListeners();
         this.initTheme();
+
+        // Manteniamo renderHistory qui ma spostiamo updateHistorySectionVisibility
+        // in DOMContentLoaded per assicurarsi che venga chiamato quando il DOM è pronto
         this.renderHistory();
 
         // Modificato per usare un listener persistente
@@ -56,8 +59,10 @@ class AudioPlayer {
         this.elements.seekBar.addEventListener('change', this.handleSeekChange.bind(this));
         this.elements.speed.addEventListener('change', this.handleSpeedChange.bind(this));
 
-        document.getElementById('skipBack').addEventListener('click', this.skipBack.bind(this));
-        document.getElementById('skipForward').addEventListener('click', this.skipForward.bind(this));
+        document.getElementById('skipBack30').addEventListener('click', () => this.skipTime(-30));
+        document.getElementById('skipForward30').addEventListener('click', () => this.skipTime(30));
+        document.getElementById('skipBack5').addEventListener('click', () => this.skipTime(-5));
+        document.getElementById('skipForward5').addEventListener('click', () => this.skipTime(5));
         this.elements.themeToggle.addEventListener('click', this.toggleTheme.bind(this));
 
         document.getElementById('clearHistory').addEventListener('click', () => {
@@ -133,7 +138,6 @@ class AudioPlayer {
         this.updatePlayerState();
 
         const videoTitle = this.player.getVideoData().title;
-        this.elements.currentTitle.textContent = videoTitle;
         this.updateHistory(videoTitle, savedTime, this.player.getDuration());
         this.elements.urlInput.classList.remove('opacity-50', 'cursor-wait');
     }
@@ -155,12 +159,16 @@ class AudioPlayer {
         this.isPlaying ? this.player.pauseVideo() : this.player.playVideo();
     }
 
-    skipBack() {
-        this.player.seekTo(this.player.getCurrentTime() - 30);
-    }
-
-    skipForward() {
-        this.player.seekTo(this.player.getCurrentTime() + 30);
+    /**
+     * Salta avanti o indietro nel video di un numero specificato di secondi
+     *
+     * @param {number} seconds - Numero di secondi (positivo per avanzare, negativo per tornare indietro)
+     * @returns {void}
+     */
+    skipTime(seconds) {
+        if (this.player) {
+            this.player.seekTo(this.player.getCurrentTime() + seconds);
+        }
     }
 
     handleSpeedChange() {
@@ -269,7 +277,9 @@ class AudioPlayer {
 
             container.innerHTML = '';
             history.forEach(item => this.createHistoryItem(item, template));
-            this.elements.historySection.classList.toggle('hidden', history.length === 0);
+
+            // Aggiorna la visibilità della sezione history
+            this.updateHistorySectionVisibility();
         } catch (error) {
             console.error('Error rendering history:', error);
         }
@@ -330,6 +340,12 @@ class AudioPlayer {
         }
     }
 
+    /**
+     * Formatta il tempo in formato leggibile (mm:ss o hh:mm:ss)
+     *
+     * @param {number} seconds - Il tempo in secondi
+     * @returns {string} - Il tempo formattato
+     */
     formatTime(seconds) {
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
@@ -340,6 +356,12 @@ class AudioPlayer {
             `${minutes}:${secs.toString().padStart(2, '0')}`;
     }
 
+    /**
+     * Formatta il tempo trascorso in un formato leggibile (ora, minuti, giorni fa)
+     *
+     * @param {number} timestamp - Il timestamp in millisecondi
+     * @returns {string} - La stringa formattata del tempo trascorso
+     */
     formatTimeAgo(timestamp) {
         const diff = Date.now() - timestamp;
         const minutes = Math.floor(diff / 60000);
@@ -358,42 +380,62 @@ class AudioPlayer {
         return 'Now';
     }
 
-    // Aggiunto metodo per gestire l'evento playVideo
+    /**
+     * Gestisce l'evento playVideo
+     *
+     * @param {Event} e - L'evento playVideo
+     * @returns {void}
+     */
     handlePlayVideo(e) {
         this.toggleSearchInterface(false);
         this.createPlayer(e.detail.videoId);
     }
 
-    // Aggiunto metodo per la pulizia
+    /**
+     * Rimuove i listener e pulisce le risorse
+     *
+     * @returns {void}
+     */
     destroy() {
         document.removeEventListener('playVideo', this.playVideoHandler);
     }
 
-    // Aggiunto metodo per gestire l'interfaccia
+    /**
+     * Mostra o nasconde l'interfaccia di ricerca
+     *
+     * @param {boolean} show - Se mostrare l'interfaccia
+     * @returns {void}
+     */
     toggleSearchInterface(show = true) {
         const searchContainer = document.getElementById('searchContainer');
         const mainInterface = document.getElementById('mainInterface');
         const searchInput = document.getElementById('searchInput');
 
         if (searchContainer && mainInterface) {
-            if (!show) {
-                if (searchInput) searchInput.value = '';
-                searchContainer.classList.add('hidden');
-                mainInterface.classList.remove('hidden');
-            } else {
+            if (show) {
                 searchContainer.classList.remove('hidden');
                 mainInterface.classList.add('hidden');
+            } else {
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+                searchContainer.classList.add('hidden');
+                mainInterface.classList.remove('hidden');
             }
         }
     }
 
-    // Nuovo metodo per pulire i risultati di ricerca
+    /**
+     * Pulisce i risultati di ricerca dall'interfaccia
+     *
+     * @returns {void}
+     */
     clearSearchResults() {
-        console.log("AudioPlayer: pulizia risultati");
+        console.log('AudioPlayer: pulizia risultati');
 
         // 1. Rimuovi tutti gli elementi con data-video-id (risultati di ricerca)
         document.querySelectorAll('[data-video-id]').forEach(el => {
-            console.log("Rimozione elemento:", el);
+            console.log('Rimozione elemento:', el);
             el.remove();
         });
 
@@ -442,6 +484,7 @@ class AudioPlayer {
      * Configure player with saved settings
      *
      * @param {HTMLElement} player - The audio player element
+     * @returns {void}
      */
     configurePlayerSettings(player) {
         player.autoplay = localStorage.getItem('autoplay') === 'true';
@@ -452,6 +495,7 @@ class AudioPlayer {
      * Setup all player event listeners
      *
      * @param {HTMLElement} player - The audio player element
+     * @returns {void}
      */
     setupPlayerEvents(player) {
         player.addEventListener('play', function() {
@@ -470,6 +514,7 @@ class AudioPlayer {
      * Toggle play/pause button visibility
      *
      * @param {boolean} isPlaying - Whether audio is playing
+     * @returns {void}
      */
     togglePlayPauseButtons(isPlaying) {
         document.querySelector('.play-button').classList.toggle('hidden', isPlaying);
@@ -480,6 +525,7 @@ class AudioPlayer {
      * Setup volume control event listeners
      *
      * @param {HTMLElement} player - The audio player element
+     * @returns {void}
      */
     setupVolumeControls(player) {
         document.querySelector('.volume-up').addEventListener('click', function() {
@@ -496,6 +542,7 @@ class AudioPlayer {
      *
      * @param {HTMLElement} player - The audio player element
      * @param {number} delta - Amount to adjust volume
+     * @returns {void}
      */
     adjustVolume(player, delta) {
         let newVolume = player.volume + delta;
@@ -509,12 +556,99 @@ class AudioPlayer {
      * Setup playlist control event listeners
      *
      * @param {HTMLElement} player - The audio player element
+     * @returns {void}
      */
     setupPlaylistControls(player) {
         // Implementazione gestione playlist
     }
+
+    /**
+     * Aggiorna la visibilità della sezione history in base alla presenza di elementi
+     *
+     * @returns {void}
+     */
+    updateHistorySectionVisibility() {
+        try {
+            const history = JSON.parse(localStorage.getItem(this.HISTORY_KEY)) || [];
+
+            if (history.length === 0) {
+                if (this.elements.historySection) {
+                    this.elements.historySection.classList.add('hidden');
+                }
+            } else {
+                if (this.elements.historySection) {
+                    this.elements.historySection.classList.remove('hidden');
+                    this.ensureHistorySectionVisible();
+                }
+            }
+        } catch (error) {
+            console.error('Error updating history visibility:', error);
+            if (this.elements.historySection) {
+                this.elements.historySection.classList.add('hidden');
+            }
+        }
+    }
+
+    /**
+     * Assicura che la sezione history sia visibile controllando anche i genitori
+     *
+     * @returns {void}
+     */
+    ensureHistorySectionVisible() {
+        try {
+            const historySection = document.getElementById('historySection');
+            if (!historySection) {
+                return;
+            }
+
+            historySection.classList.remove('hidden');
+            historySection.style.display = 'block';
+
+            // Assicuriamoci che nessun genitore abbia hidden
+            let parent = historySection.parentElement;
+            while (parent) {
+                parent.classList.remove('hidden');
+                parent = parent.parentElement;
+            }
+
+            // Forziamo un reflow del DOM
+            void historySection.offsetHeight;
+        } catch (error) {
+            console.error('Error ensuring history section visibility:', error);
+        }
+    }
 }
 
+// Esporta la classe AudioPlayer per i test
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { AudioPlayer };
+}
+
+// Variabile globale per l'istanza di AudioPlayer
+let audioPlayerInstance = null;
+
 document.addEventListener('DOMContentLoaded', () => {
-    new AudioPlayer();
+    // Salvo l'istanza in una variabile globale
+    audioPlayerInstance = new AudioPlayer();
+
+    // Assicuriamoci che la history sia visibile dopo il caricamento completo del DOM
+    setTimeout(() => {
+        try {
+            const history = JSON.parse(localStorage.getItem(audioPlayerInstance.HISTORY_KEY)) || [];
+
+            if (history.length > 0) {
+                const historySection = document.getElementById('historySection');
+                if (historySection) {
+                    historySection.classList.remove('hidden');
+                    historySection.style.display = 'block';
+                }
+
+                // Forziamo anche un refresh della UI
+                audioPlayerInstance.renderHistory();
+                audioPlayerInstance.ensureHistorySectionVisible();
+            }
+        } catch (error) {
+            console.error('Error in delayed history check:', error);
+        }
+    }, 300);
 });

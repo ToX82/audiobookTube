@@ -108,13 +108,19 @@
                     <span id="duration" class="text-gray-500 dark:text-gray-100">0:00</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button id="skipBack" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Rewind 30s">
+                    <button id="skipBack30" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Rewind 30s">
                         <iconify-icon icon="mdi:rewind-30" class="text-2xl text-gray-600 dark:text-gray-300"></iconify-icon>
+                    </button>
+                    <button id="skipBack5" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Rewind 5s">
+                        <iconify-icon icon="mdi:rewind-5" class="text-xl text-gray-600 dark:text-gray-300"></iconify-icon>
                     </button>
                     <button id="playPause" class="p-2 pb-1 bg-primary-500 hover:bg-primary-600 text-white rounded-xl shadow-lg transition-colors">
                         <iconify-icon icon="mdi:play" class="text-3xl"></iconify-icon>
                     </button>
-                    <button id="skipForward" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Forward 30s">
+                    <button id="skipForward5" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Forward 5s">
+                        <iconify-icon icon="mdi:fast-forward-5" class="text-xl text-gray-600 dark:text-gray-300"></iconify-icon>
+                    </button>
+                    <button id="skipForward30" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Forward 30s">
                         <iconify-icon icon="mdi:fast-forward-30" class="text-2xl text-gray-600 dark:text-gray-300"></iconify-icon>
                     </button>
                 </div>
@@ -185,14 +191,18 @@
         <div id="resultsContainer" class="space-y-3" aria-live="polite"></div>
     </div>
 
+    <!-- Carica i moduli JavaScript -->
+    <script src="public/js/utils.js"></script>
+    <script src="public/js/event-bus.js"></script>
+    <script src="public/js/api-service.js"></script>
+    <script src="public/js/ui-manager.js"></script>
+    <script src="public/js/search-engine.js"></script>
     <script src="player.js"></script>
+    <script src="public/js/main.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js');
         }
     </script>
-
-    <script src="public/js/search.js"></script>
-    <script src="public/js/main.js"></script>
 </body>
 </html>

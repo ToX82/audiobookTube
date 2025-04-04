@@ -52,7 +52,8 @@ class SearchEngine {
         }
 
         if (this.instances.length === 0) {
-            throw new Error('No instances available');
+            alert('Unable to connect to the search engine. Please try again later or paste a YouTube URL.');
+            location.reload();
         }
 
         const currentInstance = this.instances[this.currentInstance];

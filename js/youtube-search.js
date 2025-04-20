@@ -7,63 +7,8 @@ class YouTubeSearchService {
      * @returns {void}
      */
     constructor() {
-        this.proxyUrl      = 'https://cors-anywhere.herokuapp.com/';
-        this.searchUrl     = 'https://www.youtube.com/results?search_query=';
-        this.corsUnblocked = false;
-    }
-
-    /**
-     * Preleva il token dinamicamente dalla pagina di demo
-     * @returns {Promise<string>} token di sblocco per il proxy CORS
-     */
-    fetchCorsToken() {
-        // Rimuovi 'no-cors' qui, altrimenti non puoi leggere il body
-        return fetch(this.proxyUrl + 'corsdemo', { method: 'GET' }).then(function(res) {
-            if (!res.ok) {
-                throw new Error('Impossibile caricare corsdemo: ' + res.status);
-            }
-            return res.text();
-        }).then(function(html) {
-            // Estrai il valore dell'input (usa regex o DOMParser)
-            var match = html.match(/<input\s+name="accessRequest"\s+value="([^"]+)"/);
-            if (!match) {
-                throw new Error('Token di sblocco non trovato nella pagina');
-            }
-            return match[1];
-        });
-    }
-
-    /**
-     * Tenta di sbloccare CORS Anywhere
-     * @returns {Promise<boolean>} true se lo sblocco è riuscito, false altrimenti
-     */
-    unblockCorsAnywhere() {
-        var self = this;
-        if (this.corsUnblocked) {
-            return Promise.resolve(true);
-        }
-
-        return this.fetchCorsToken().then(function(token) {
-            var formData = new FormData();
-            formData.append('accessRequest', token);
-
-            return fetch(self.proxyUrl + 'corsdemo', {
-                method: 'POST',
-                body: formData,
-                mode: 'no-cors'
-            });
-        }).then(function(response) {
-            if (!response.ok && response.type !== 'opaque') {
-                console.warn('POST di sblocco fallita:', response.status);
-                return false;
-            }
-
-            self.corsUnblocked = true;
-            return true;
-        }).catch(function(err) {
-            console.warn('Errore nello sblocco CORS Anywhere:', err);
-            return false;
-        });
+        this.proxyUrl = AppConfig.proxyUrl;
+        this.searchUrl = 'https://www.youtube.com/results?search_query=';
     }
 
     /**
@@ -119,19 +64,12 @@ class YouTubeSearchService {
         }
 
         var self = this;
-        var initialUrl = this.proxyUrl + 'https://www.youtube.com/watch?v=' + videoId;
+        var targetUrl = 'https://www.youtube.com/watch?v=' + videoId;
+        var initialUrl = AppConfig.getProxiedUrl(targetUrl);
 
         return fetch(initialUrl).then(function(response) {
             if (!response.ok) {
-                console.log('Initial video details fetch failed, attempting to unblock CORS...');
-                return self.unblockCorsAnywhere().then(function() {
-                    return fetch(initialUrl);
-                });
-            }
-            return response;
-        }).then(function(response) {
-            if (!response.ok) {
-                throw new Error('Error fetching video data even after unblock attempt');
+                throw new Error('Error fetching video data');
             }
             return response.text();
         }).then(function(html) {
@@ -194,19 +132,12 @@ class YouTubeSearchService {
 
         var self = this;
         var encodedQuery = encodeURIComponent(query.trim());
-        var searchUrl = this.proxyUrl + this.searchUrl + encodedQuery;
+        var targetUrl = this.searchUrl + encodedQuery;
+        var searchUrl = AppConfig.getProxiedUrl(targetUrl);
 
         return fetch(searchUrl).then(function(response) {
             if (!response.ok) {
-                console.log('Initial search failed, attempting to unblock CORS...');
-                return self.unblockCorsAnywhere().then(function() {
-                    return fetch(searchUrl);
-                });
-            }
-            return response;
-        }).then(function(response) {
-            if (!response.ok) {
-                throw new Error('Error in proxy response even after unblock attempt');
+                throw new Error('Error in proxy response');
             }
             return response.text();
         }).then(function(html) {

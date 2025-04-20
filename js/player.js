@@ -70,7 +70,6 @@ class AudioPlayer {
      * @returns {void}
      */
     _onPlayerReady() {
-        console.log('YouTube player is ready');
         this.isReady = true;
     }
 

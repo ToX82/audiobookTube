@@ -57,8 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize YouTube player
     audioPlayer.initialize().then(() => {
-        console.log('AudioPlayer initialized');
-
         // Load history from storage
         updateHistoryView();
     });
@@ -240,13 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
                             <p>Errore nel recupero del video</p>
                             <p class="text-sm text-gray-500 mt-2">Il proxy CORS potrebbe essere bloccato</p>
-                            <p class="text-sm mt-3">
-                                <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank"
-                                class="text-blue-400 underline" rel="noopener">
-                                Clicca qui per sbloccare manualmente
-                                </a>
-                            </p>
-                            <p class="text-sm text-gray-500 mt-2">Verifica anche che l'URL o l'ID di YouTube siano validi</p>
+                            <p class="text-sm text-gray-500 mt-2">Verifica che l'URL o l'ID di YouTube siano validi</p>
                         </div>
                     `;
                 });
@@ -260,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     searchResults.innerHTML = `
                         <div class="text-center py-8 text-gray-500">
                             <i class="fas fa-search text-2xl mb-2"></i>
-                            <p>Nessun risultato trovato</p>
+                            <p>Nessun risultato trovato.<br>Prova con altre parole chiave, oppure incolla un URL di YouTube.</p>
                         </div>
                     `;
                     return;
@@ -280,12 +272,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
                         <p>Servizio di ricerca non disponibile</p>
                         <p class="text-sm text-gray-500 mt-2">Il proxy CORS potrebbe essere bloccato</p>
-                        <p class="text-sm mt-3">
-                            <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank"
-                            class="text-blue-400 underline" rel="noopener">
-                            Clicca qui per sbloccare manualmente
-                            </a>
-                        </p>
                         <p class="text-sm text-gray-500 mt-2">In alternativa, prova a incollare direttamente un URL di YouTube</p>
                     </div>
                 `;

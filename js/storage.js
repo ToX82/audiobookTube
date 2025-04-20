@@ -11,24 +11,25 @@ class StorageManager {
     }
 
     /**
-     * Get the current theme
-     * @returns {String} 'dark' or 'light'
+     * Get current theme
+     * @returns {String} Theme name ('dark' or 'light')
      */
     getTheme() {
         return localStorage.getItem(this.THEME_KEY) || 'dark';
     }
 
     /**
-     * Save the theme setting
-     * @param {String} theme - 'dark' or 'light'
+     * Save theme setting
+     * @param {String} theme - Theme name ('dark' or 'light')
+     * @returns {void}
      */
     saveTheme(theme) {
         localStorage.setItem(this.THEME_KEY, theme);
     }
 
     /**
-     * Toggle the theme between dark and light
-     * @returns {String} The new theme
+     * Toggle between dark and light theme
+     * @returns {String} New theme name
      */
     toggleTheme() {
         const currentTheme = this.getTheme();
@@ -38,7 +39,7 @@ class StorageManager {
     }
 
     /**
-     * Get the current playlist from localStorage
+     * Get saved playlist
      * @returns {Array} Array of video objects
      */
     getPlaylist() {
@@ -47,8 +48,9 @@ class StorageManager {
     }
 
     /**
-     * Save the playlist to localStorage
+     * Save playlist
      * @param {Array} playlist - Array of video objects
+     * @returns {void}
      */
     savePlaylist(playlist) {
         localStorage.setItem(this.PLAYLIST_KEY, JSON.stringify(playlist));
@@ -56,8 +58,8 @@ class StorageManager {
 
     /**
      * Add a video to the playlist
-     * @param {Object} video - Video object
-     * @returns {Boolean} True if added, false if already exists
+     * @param {Object} video - Video object to add
+     * @returns {void}
      */
     addToPlaylist(video) {
         const playlist = this.getPlaylist();
@@ -76,6 +78,7 @@ class StorageManager {
     /**
      * Remove a video from the playlist
      * @param {String} videoId - YouTube video ID
+     * @returns {void}
      */
     removeFromPlaylist(videoId) {
         const playlist = this.getPlaylist();
@@ -85,14 +88,15 @@ class StorageManager {
 
     /**
      * Clear the entire playlist
+     * @returns {void}
      */
     clearPlaylist() {
         localStorage.removeItem(this.PLAYLIST_KEY);
     }
 
     /**
-     * Get the watch history from localStorage
-     * @returns {Array} Array of video objects with timestamps
+     * Get watch history
+     * @returns {Array} Array of video objects with lastPlayed dates
      */
     getHistory() {
         const history = localStorage.getItem(this.HISTORY_KEY);
@@ -100,16 +104,18 @@ class StorageManager {
     }
 
     /**
-     * Save the watch history to localStorage
-     * @param {Array} history - Array of video objects with timestamps
+     * Save watch history
+     * @param {Array} history - Array of video objects
+     * @returns {void}
      */
     saveHistory(history) {
         localStorage.setItem(this.HISTORY_KEY, JSON.stringify(history));
     }
 
     /**
-     * Add a video to the watch history
-     * @param {Object} video - Video object
+     * Add a video to watch history
+     * @param {Object} video - Video object to add
+     * @returns {void}
      */
     addToHistory(video) {
         let history = this.getHistory();
@@ -118,10 +124,9 @@ class StorageManager {
         history = history.filter(item => item.videoId !== video.videoId);
 
         // Add to the beginning
-        history.unshift({
-            ...video,
+        history.unshift(Object.assign({}, video, {
             lastPlayed: new Date().toISOString()
-        });
+        }));
 
         // Limit history size
         if (history.length > this.MAX_HISTORY_ITEMS) {
@@ -134,6 +139,7 @@ class StorageManager {
     /**
      * Remove a video from the watch history
      * @param {String} videoId - YouTube video ID
+     * @returns {void}
      */
     removeFromHistory(videoId) {
         const history = this.getHistory();
@@ -143,6 +149,7 @@ class StorageManager {
 
     /**
      * Clear the entire watch history
+     * @returns {void}
      */
     clearHistory() {
         localStorage.removeItem(this.HISTORY_KEY);
@@ -153,6 +160,7 @@ class StorageManager {
      * @param {String} videoId - YouTube video ID
      * @param {Number} currentTime - Current playback time in seconds
      * @param {Number} duration - Total duration in seconds
+     * @returns {void}
      */
     saveVideoProgress(videoId, currentTime, duration) {
         const progressData = this.getAllProgress();
@@ -187,6 +195,7 @@ class StorageManager {
     /**
      * Clear progress for a specific video
      * @param {String} videoId - YouTube video ID
+     * @returns {void}
      */
     clearVideoProgress(videoId) {
         const progressData = this.getAllProgress();

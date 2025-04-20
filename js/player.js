@@ -44,6 +44,7 @@ class AudioPlayer {
     /**
      * Set up the YouTube player instance
      * @private
+     * @returns {void}
      */
     _setupPlayer() {
         this.player = new YT.Player('youtube-player', {
@@ -66,6 +67,7 @@ class AudioPlayer {
     /**
      * Handle player ready event
      * @private
+     * @returns {void}
      */
     _onPlayerReady() {
         console.log('YouTube player is ready');
@@ -76,6 +78,7 @@ class AudioPlayer {
      * Handle player state change events
      * @param {Object} event - YouTube player state change event
      * @private
+     * @returns {void}
      */
     _onPlayerStateChange(event) {
         switch (event.data) {
@@ -135,6 +138,7 @@ class AudioPlayer {
      * Handle player errors
      * @param {Object} event - YouTube player error event
      * @private
+     * @returns {void}
      */
     _onPlayerError(event) {
         console.error('YouTube player error:', event.data);
@@ -163,6 +167,7 @@ class AudioPlayer {
     /**
      * Start interval to track playback progress
      * @private
+     * @returns {void}
      */
     _startProgressInterval() {
         this._clearProgressInterval();
@@ -180,6 +185,7 @@ class AudioPlayer {
     /**
      * Clear progress tracking interval
      * @private
+     * @returns {void}
      */
     _clearProgressInterval() {
         if (this.progressInterval) {
@@ -192,6 +198,7 @@ class AudioPlayer {
      * Load a video to the player
      * @param {Object} video - Video object with videoId
      * @param {Boolean} autoplay - Whether to play automatically
+     * @returns {void}
      */
     loadVideo(video, autoplay = true) {
         if (!this.isReady || !this.player) {
@@ -245,6 +252,7 @@ class AudioPlayer {
 
     /**
      * Play current video
+     * @returns {void}
      */
     play() {
         if (this.isReady && this.player) {
@@ -254,6 +262,7 @@ class AudioPlayer {
 
     /**
      * Pause current video
+     * @returns {void}
      */
     pause() {
         if (this.isReady && this.player) {
@@ -262,7 +271,8 @@ class AudioPlayer {
     }
 
     /**
-     * Toggle play/pause
+     * Toggle play/pause state
+     * @returns {boolean} True if playing, false if paused
      */
     togglePlayPause() {
         if (this.isPlaying) {
@@ -273,8 +283,9 @@ class AudioPlayer {
     }
 
     /**
-     * Seek to a specific time
-     * @param {Number} seconds - Time in seconds
+     * Seek to specific time in the video
+     * @param {Number} seconds - Time in seconds to seek to
+     * @returns {void}
      */
     seek(seconds) {
         if (this.isReady && this.player) {
@@ -283,8 +294,9 @@ class AudioPlayer {
     }
 
     /**
-     * Set playback speed
-     * @param {Number} rate - Playback rate (0.5-2)
+     * Set the playback rate
+     * @param {Number} rate - Playback rate (0.5 to 2)
+     * @returns {void}
      */
     setPlaybackRate(rate) {
         if (this.isReady && this.player) {
@@ -294,8 +306,9 @@ class AudioPlayer {
     }
 
     /**
-     * Skip forward by seconds
-     * @param {Number} seconds - Seconds to skip forward
+     * Skip forward by specified seconds
+     * @param {Number} seconds - Seconds to skip forward (default: 30)
+     * @returns {void}
      */
     skipForward(seconds = 30) {
         if (this.isReady && this.player) {
@@ -305,8 +318,9 @@ class AudioPlayer {
     }
 
     /**
-     * Skip backward by seconds
-     * @param {Number} seconds - Seconds to skip backward
+     * Skip backward by specified seconds
+     * @param {Number} seconds - Seconds to skip backward (default: 10)
+     * @returns {void}
      */
     skipBackward(seconds = 10) {
         if (this.isReady && this.player) {
@@ -316,12 +330,13 @@ class AudioPlayer {
     }
 
     /**
-     * Set playlist and start playing
+     * Set current playlist and start playing from a specific index
      * @param {Array} playlist - Array of video objects
      * @param {Number} startIndex - Index to start playing from
+     * @returns {void}
      */
     setPlaylist(playlist, startIndex = 0) {
-        this.playlist = [...playlist];
+        this.playlist = [ ...playlist ];
         this.currentPlaylistIndex = startIndex;
 
         if (this.playlist.length > 0 && this.currentPlaylistIndex < this.playlist.length) {
@@ -331,40 +346,45 @@ class AudioPlayer {
     }
 
     /**
-     * Set event callback for play
-     * @param {Function} callback - Callback function
+     * Set callback for play event
+     * @param {Function} callback - Function to call on play
+     * @returns {void}
      */
     onPlay(callback) {
         this.onPlayCallback = callback;
     }
 
     /**
-     * Set event callback for pause
-     * @param {Function} callback - Callback function
+     * Set callback for pause event
+     * @param {Function} callback - Function to call on pause
+     * @returns {void}
      */
     onPause(callback) {
         this.onPauseCallback = callback;
     }
 
     /**
-     * Set event callback for ended
-     * @param {Function} callback - Callback function
+     * Set callback for video ended event
+     * @param {Function} callback - Function to call when video ends
+     * @returns {void}
      */
     onEnded(callback) {
         this.onEndedCallback = callback;
     }
 
     /**
-     * Set event callback for progress
-     * @param {Function} callback - Callback function
+     * Set callback for progress update
+     * @param {Function} callback - Function to call on progress update
+     * @returns {void}
      */
     onProgress(callback) {
         this.onProgressCallback = callback;
     }
 
     /**
-     * Set event callback for state change
-     * @param {Function} callback - Callback function
+     * Set callback for YouTube player state change
+     * @param {Function} callback - Function to call on state change
+     * @returns {void}
      */
     onStateChange(callback) {
         this.onStateChangeCallback = callback;

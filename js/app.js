@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to immediately update progress bar for better UX feedback when skipping
     function updateProgressBarImmediate(seconds, forward) {
-        if (!audioPlayer.currentTime || !audioPlayer.duration) return;
+        if (!audioPlayer.currentTime || !audioPlayer.duration) {return;}
 
         // Calculate new position
         let newTime;
@@ -199,9 +199,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Search function
-    async function performSearch() {
+    function performSearch() {
         const query = searchInput.value.trim();
-        if (!query) return;
+        if (!query) {return;}
 
         // Switch to search tab
         document.getElementById('tab-search').click();
@@ -218,79 +218,78 @@ document.addEventListener('DOMContentLoaded', function() {
         const videoId = youtubeSearchService.isYouTubeUrl(query);
 
         if (videoId) {
-            try {
-                // It's a URL or video ID, get the video details directly
-                const video = await youtubeSearchService.getVideoDetails(videoId);
+            // It's a URL or video ID, get the video details directly
+            youtubeSearchService.getVideoDetails(videoId)
+                .then(function(video) {
+                    if (!video) {
+                        throw new Error('Could not get video details');
+                    }
 
-                if (!video) {
-                    throw new Error("Could not get video details");
-                }
+                    // Display the single video
+                    searchResults.innerHTML = '';
+                    const videoItem = createVideoElement(video);
+                    searchResults.appendChild(videoItem);
 
-                // Display the single video
-                searchResults.innerHTML = '';
-                const videoItem = createVideoElement(video);
-                searchResults.appendChild(videoItem);
-
-                // Auto-play the video
-                playVideo(video);
-
-            } catch (error) {
-                console.error('Error getting video details:', error);
-                searchResults.innerHTML = `
-                    <div class="text-center py-8 text-red-500">
-                        <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
-                        <p>Errore nel recupero del video</p>
-                        <p class="text-sm text-gray-500 mt-2">Il proxy CORS potrebbe essere bloccato</p>
-                        <p class="text-sm mt-3">
-                            <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank"
-                               class="text-blue-400 underline" rel="noopener">
-                               Clicca qui per sbloccare manualmente
-                            </a>
-                        </p>
-                        <p class="text-sm text-gray-500 mt-2">Verifica anche che l'URL o l'ID di YouTube siano validi</p>
-                    </div>
-                `;
-            }
+                    // Auto-play the video
+                    playVideo(video);
+                })
+                .catch(function(error) {
+                    console.error('Error getting video details:', error);
+                    searchResults.innerHTML = `
+                        <div class="text-center py-8 text-red-500">
+                            <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
+                            <p>Errore nel recupero del video</p>
+                            <p class="text-sm text-gray-500 mt-2">Il proxy CORS potrebbe essere bloccato</p>
+                            <p class="text-sm mt-3">
+                                <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank"
+                                class="text-blue-400 underline" rel="noopener">
+                                Clicca qui per sbloccare manualmente
+                                </a>
+                            </p>
+                            <p class="text-sm text-gray-500 mt-2">Verifica anche che l'URL o l'ID di YouTube siano validi</p>
+                        </div>
+                    `;
+                });
             return;
         }
 
         // If it's not a URL, perform a search
-        try {
-            const results = await youtubeSearchService.searchVideos(query);
+        youtubeSearchService.searchVideos(query)
+            .then(function(results) {
+                if (results.length === 0) {
+                    searchResults.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-search text-2xl mb-2"></i>
+                            <p>Nessun risultato trovato</p>
+                        </div>
+                    `;
+                    return;
+                }
 
-            if (results.length === 0) {
+                // Display results
+                searchResults.innerHTML = '';
+                results.forEach(function(video) {
+                    const videoItem = createVideoElement(video);
+                    searchResults.appendChild(videoItem);
+                });
+            })
+            .catch(function(error) {
+                console.error('Search error:', error);
                 searchResults.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-search text-2xl mb-2"></i>
-                        <p>Nessun risultato trovato</p>
+                    <div class="text-center py-8 text-red-500">
+                        <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
+                        <p>Servizio di ricerca non disponibile</p>
+                        <p class="text-sm text-gray-500 mt-2">Il proxy CORS potrebbe essere bloccato</p>
+                        <p class="text-sm mt-3">
+                            <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank"
+                            class="text-blue-400 underline" rel="noopener">
+                            Clicca qui per sbloccare manualmente
+                            </a>
+                        </p>
+                        <p class="text-sm text-gray-500 mt-2">In alternativa, prova a incollare direttamente un URL di YouTube</p>
                     </div>
                 `;
-                return;
-            }
-
-            // Display results
-            searchResults.innerHTML = '';
-            results.forEach(video => {
-                const videoItem = createVideoElement(video);
-                searchResults.appendChild(videoItem);
             });
-        } catch (error) {
-            console.error('Search error:', error);
-            searchResults.innerHTML = `
-                <div class="text-center py-8 text-red-500">
-                    <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
-                    <p>Servizio di ricerca non disponibile</p>
-                    <p class="text-sm text-gray-500 mt-2">Il proxy CORS potrebbe essere bloccato</p>
-                    <p class="text-sm mt-3">
-                        <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank"
-                           class="text-blue-400 underline" rel="noopener">
-                           Clicca qui per sbloccare manualmente
-                        </a>
-                    </p>
-                    <p class="text-sm text-gray-500 mt-2">In alternativa, prova a incollare direttamente un URL di YouTube</p>
-                </div>
-            `;
-        }
     }
 
     // Create video element for display
@@ -307,9 +306,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Progress data
         const progress = storageManager.getVideoProgress(video.videoId);
         const progressPercent = progress ? progress.percent : 0;
-        const progressDisplay = progressPercent > 0 && progressPercent < 100
-            ? `<div class="text-xs text-blue-400">${progressPercent.toFixed(0)}% played</div>`
-            : '';
+        const progressDisplay = progressPercent > 0 && progressPercent < 100 ?
+            `<div class="text-xs text-blue-400">${progressPercent.toFixed(0)}% played</div>` :
+            '';
 
         // Format for history item
         let lastPlayedDisplay = '';
@@ -344,7 +343,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Play video on click
         videoItem.addEventListener('click', (e) => {
             // Ignore if the click was on a button
-            if (e.target.closest('button')) return;
+            if (e.target.closest('button')) {
+                return;
+            }
 
             playVideo(video);
         });
@@ -374,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show now playing information
     function showNowPlaying() {
-        if (!audioPlayer.currentVideo) return;
+        if (!audioPlayer.currentVideo) {return;}
 
         nowPlayingContainer.classList.remove('hidden');
         nowPlayingTitle.textContent = audioPlayer.currentVideo.title;
@@ -444,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Format time for display (seconds to MM:SS)
     function formatTime(seconds) {
-        if (!seconds) return '0:00';
+        if (!seconds) {return '0:00';}
 
         seconds = Math.floor(seconds);
         const minutes = Math.floor(seconds / 60);
@@ -455,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Format date for display
     function formatDate(date) {
-        if (!date) return '';
+        if (!date) {return '';}
 
         const now = new Date();
         const diff = now - date;

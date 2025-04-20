@@ -6,7 +6,8 @@ const AppConfig = {
      * URL del proxy CORS - per la ricerca su YouTube
      */
     //proxyUrl: 'https://corsproxy.io/?url=',
-    proxyUrl: 'https://everyorigin.jwvbremen.nl/get?url=',
+    //proxyUrl: 'https://everyorigin.jwvbremen.nl/get?url=',
+    proxyUrl: 'https://api.allorigins.win/get?url=',
 
     /**
      * Helper per ottenere un URL con proxy

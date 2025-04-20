@@ -5,7 +5,7 @@ const AppConfig = {
     /**
      * URL del proxy CORS - per la ricerca su YouTube
      */
-    proxyUrl: 'https://corsproxy.ioa/?url=',
+    proxyUrl: 'https://corsproxy.io/?url=',
 
     /**
      * Helper per ottenere un URL con proxy

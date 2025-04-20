@@ -165,13 +165,24 @@ class YouTubeSearchService {
             let ytInitialData = null;
 
             for (const script of scripts) {
-                const text = script.textContent;
+                var text = script.textContent;
                 if (text.includes('var ytInitialData =') || text.includes('window["ytInitialData"] =')) {
-                    const jsonStrMatch = text.match(/ytInitialData\s*=\s*(\{.+?\});/) ||
-                                         text.match(/window\["ytInitialData"\]\s*=\s*(\{.+?\});/);
-                    if (jsonStrMatch && jsonStrMatch[1]) {
+                    text = text.replace(/\\'/g, '\'');
+                    text = text.replace(/\\"/g, '\"');
+                    // Parsiamo la stringa JSON-like, facendo i replace necessari per decodificare i caratteri unicode e i backslash
+                    // Sostituiamo le sequenze esadecimali tipo \x22 con i caratteri corrispondenti
+                    text = text.replace(/\\x([0-9A-Fa-f]{2})/g, function(match, p1) {
+                        return String.fromCharCode(parseInt(p1, 16));
+                    });
+                    // Rimuoviamo eventuali doppi backslash rimasti
+                    text = text.replace(/\\\\/g, '\\');
+
+                    // Rimuovi tutto ciò che non è compreso fra il primo { e l'ultimo }
+                    text = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+
+                    if (text) {
                         try {
-                            ytInitialData = JSON.parse(jsonStrMatch[1]);
+                            ytInitialData = JSON.parse(text);
                         } catch (e) {
                             console.error('Error parsing JSON ytInitialData', e);
                         }
@@ -184,14 +195,11 @@ class YouTubeSearchService {
                 return videos;
             }
 
-            const videoItems = ytInitialData.contents
-                .twoColumnSearchResultsRenderer.primaryContents
-                .sectionListRenderer.contents[0]
-                .itemSectionRenderer.contents;
+            const videoItems = ytInitialData.contents.sectionListRenderer.contents[0].itemSectionRenderer.contents;
 
             for (const item of videoItems) {
-                if (item.videoRenderer) {
-                    const video = item.videoRenderer;
+                if (item.videoWithContextRenderer) {
+                    const video = item.videoWithContextRenderer;
                     const videoId = video.videoId;
 
                     // Skip non-video items or videos without ID
@@ -199,7 +207,7 @@ class YouTubeSearchService {
                         continue;
                     }
 
-                    const title = video.title.runs[0].text;
+                    const title = video.headline.runs[0].text;
                     const thumbnail = video.thumbnail.thumbnails.pop().url;
 
                     // Get author name

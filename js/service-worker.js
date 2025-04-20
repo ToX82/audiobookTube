@@ -1,16 +1,16 @@
 const CACHE_NAME = 'audio-book-tube-cache-v1';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/css/tailwind.css',
-    '/js/app.js',
-    '/js/player.js',
-    '/js/storage.js',
-    '/js/youtube-search.js',
-    '/favicon.png',
-    '/icon-192x192.png',
-    '/icon-512x512.png',
-    '/manifest.json'
+    './',
+    './index.html',
+    './css/tailwind.css',
+    './js/app.js',
+    './js/player.js',
+    './js/storage.js',
+    './js/youtube-search.js',
+    './favicon.png',
+    './icon-192x192.png',
+    './icon-512x512.png',
+    './manifest.json'
 ];
 
 // Service worker installation

@@ -1,207 +1,181 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AudioBookTube - YouTube AudioBooks Experience, simplified</title>
-    <meta name="description" content="YouTube AudioBooks Experience, simplified">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
-
-    <link rel="icon" type="image/png" href="favicon.png">
+    <title>AudioBookTube - YouTube AudioBook Experience, simplified</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/tailwind.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4285f4">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <link rel="apple-touch-icon" href="icon-192x192.png">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#1F2937">
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-300 pb-20">
-    <div class="container mx-auto px-4 py-8 max-w-3xl">
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <div class="inline-block bg-gradient-to-r from-primary-500 to-primary-700 p-3 rounded-2xl mb-4 shadow-lg">
-                <h1 class="text-4xl font-bold text-white mb-2">AudioBookTube</h1>
-            </div>
-            <p class="text-gray-600 dark:text-gray-300 font-medium">YouTube AudioBook Experience, simplified</p>
-        </div>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+    <!-- YouTube API -->
+    <div id="youtube-player" class="hidden"></div>
 
-        <!-- Search Input -->
-        <div class="mb-4 relative group transition-transform duration-300 hover:scale-[1.01]">
-            <form id="universalForm" onsubmit="handleUniversalInput(event)">
-                <input
-                    type="text"
-                    id="urlInput"
-                    class="w-full p-4 rounded-2xl shadow-lg border-2 border-transparent focus:border-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all pr-12 placeholder-gray-400 dark:placeholder-gray-500"
-                    placeholder="Search for a book title or paste a YouTube URL..."
-                    autocomplete="off"
-                >
-                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2">
-                    <iconify-icon
-                        icon="mdi:magnify"
-                        class="text-2xl text-gray-400 dark:text-gray-500 transition-colors group-hover:text-primary-500"
-                    ></iconify-icon>
-                </button>
-            </form>
-        </div>
-        <div id="urlError" class="text-red-500 text-sm mt-1 pl-2 hidden">Invalid URL</div>
+    <!-- Header -->
+    <header class="py-2 sm:py-4 border-b border-gray-800 relative">
+        <button id="theme-toggle" class="absolute right-3 top-3 p-2 rounded-full hover:bg-gray-800" title="Toggle light/dark theme">
+            <i class="fas fa-moon dark-icon text-xl"></i>
+            <i class="fas fa-sun light-icon hidden text-xl"></i>
+        </button>
 
-        <!-- History Section -->
-        <div id="historySection" class="mb-20 space-y-2 hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
-                    <iconify-icon icon="mdi:history" class="mr-2"></iconify-icon>
-                    History
-                </h3>
-                <button id="clearHistory" class="text-sm text-primary-500 hover:text-primary-600 flex items-center">
-                    <iconify-icon icon="mdi:trash-can-outline" class="mr-1"></iconify-icon>
-                    Clear
-                </button>
-            </div>
-            <div id="historyList" class="space-y-2"></div>
-        </div>
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col items-center">
+                <!-- Logo -->
+                <div class="text-center mb-2">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-blue-400">AudioBookTube</h1>
+                    <p class="text-xs sm:text-sm text-gray-400 mt-0 sm:mt-1">YouTube AudioBook Experience, simplified</p>
+                </div>
 
-        <!-- Player Interface -->
-        <div id="playerInterface" class="hidden fixed bottom-4 left-0 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl w-[95%] max-w-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:transform hover:-translate-y-1 z-20">
-            <div class="mb-4">
-                <div class="slider-container">
+                <!-- Search form -->
+                <div class="w-full mt-2 sm:mt-4 relative">
                     <input
+                        id="search-input"
+                        type="text"
+                        placeholder="Search or paste YouTube URL..."
+                        class="w-full py-2 sm:py-3 px-4 bg-gray-800 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 pr-12 text-sm sm:text-base"
+                    >
+                    <button id="search-button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-400 p-2">
+                        <i class="fas fa-search text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- Tabs -->
+        <div class="flex mb-4 border-b border-gray-800 justify-between">
+            <button id="tab-search" class="tab-btn px-3 sm:px-4 py-3 font-medium text-base">Search</button>
+            <button id="tab-history" class="tab-btn px-3 sm:px-4 py-3 font-medium text-base active">History</button>
+        </div>
+
+        <!-- Tab content -->
+        <div id="search-results" class="tab-content hidden">
+            <div id="search-results-container" class="space-y-2">
+                <!-- Search results will be populated here -->
+                <div class="text-center text-gray-500 py-8">
+                    Search for videos or paste a YouTube URL to start
+                </div>
+            </div>
+        </div>
+
+        <div id="history-container" class="tab-content">
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-xl font-bold">History</h2>
+                <button id="clear-history-btn" class="text-sm text-red-400">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+            </div>
+            <div id="history-items" class="space-y-2">
+                <!-- History items will be populated here -->
+                <div class="text-center text-gray-500 py-8" id="history-empty-message">
+                    Your history is empty
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Player fixed at bottom -->
+    <div id="player-container" class="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 p-4">
+        <div class="container mx-auto">
+            <!-- Now playing -->
+            <div id="now-playing-container" class="hidden mb-3">
+                <div class="flex items-center">
+                    <div id="now-playing-thumbnail" class="w-16 h-12 bg-gray-700 rounded overflow-hidden mr-3 flex-shrink-0">
+                        <!-- Thumbnail will be loaded here -->
+                    </div>
+                    <div class="flex-grow min-w-0">
+                        <h3 id="now-playing-title" class="text-base font-semibold truncate">No audio selected</h3>
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span id="current-time">0:00</span>
+                            <span class="mx-1">/</span>
+                            <span id="duration">0:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="mb-4">
+                <div class="relative h-1 bg-gray-700 rounded-full">
+                    <div id="progress-bar" class="absolute left-0 top-0 h-full bg-blue-500 rounded-full" style="width: 0%"></div>
+                    <input
+                        id="seek-slider"
                         type="range"
-                        id="seekBar"
-                        class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer"
                         min="0"
                         max="100"
                         value="0"
+                        class="absolute w-full h-1 opacity-0 cursor-pointer"
                     >
-                    <div id="sliderTooltip" class="slider-tooltip">0:00</div>
                 </div>
             </div>
-            <div class="flex items-center justify-between controls-container">
-                <div class="text-gray-600 dark:text-gray-300 text-sm font-medium">
-                    <span id="currentTime">0:00</span>
-                    /
-                    <span id="duration" class="text-gray-500 dark:text-gray-100">0:00</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button id="skipBack30" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Rewind 30s">
-                        <iconify-icon icon="mdi:rewind-30" class="text-2xl text-gray-600 dark:text-gray-300"></iconify-icon>
-                    </button>
-                    <button id="skipBack5" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Rewind 5s">
-                        <iconify-icon icon="mdi:rewind-5" class="text-xl text-gray-600 dark:text-gray-300"></iconify-icon>
-                    </button>
-                    <button id="playPause" class="p-2 pb-1 bg-primary-500 hover:bg-primary-600 text-white rounded-xl shadow-lg transition-colors">
-                        <iconify-icon icon="mdi:play" class="text-3xl"></iconify-icon>
-                    </button>
-                    <button id="skipForward5" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Forward 5s">
-                        <iconify-icon icon="mdi:fast-forward-5" class="text-xl text-gray-600 dark:text-gray-300"></iconify-icon>
-                    </button>
-                    <button id="skipForward30" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" data-tooltip="Forward 30s">
-                        <iconify-icon icon="mdi:fast-forward-30" class="text-2xl text-gray-600 dark:text-gray-300"></iconify-icon>
-                    </button>
-                </div>
-                <select id="speed" class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 text-gray-800 dark:text-white text-sm transition-colors">
+
+            <!-- Player controls -->
+            <div class="flex justify-center items-center space-x-2 sm:space-x-4">
+                <button id="skip-backward-30-btn" class="p-3 sm:p-2 sm:block" title="Skip backward 30 seconds">
+                    <i class="fas fa-rotate-left text-lg"></i>
+                    <span class="text-xs">30</span>
+                </button>
+
+                <button id="skip-backward-5-btn" class="p-3 sm:p-2" title="Skip backward 5 seconds">
+                    <i class="fas fa-rotate-left text-xl"></i>
+                    <span class="text-xs">5</span>
+                </button>
+                <button id="play-pause-btn" class="bg-blue-500 text-white rounded-full w-14 h-14 sm:w-12 sm:h-12 flex items-center justify-center">
+                    <i class="fas fa-play text-2xl"></i>
+                </button>
+                <button id="skip-forward-5-btn" class="p-3 sm:p-2" title="Skip forward 5 seconds">
+                    <i class="fas fa-rotate-right text-xl"></i>
+                    <span class="text-xs">5</span>
+                </button>
+
+                <button id="skip-forward-30-btn" class="p-3 sm:p-2 sm:block" title="Skip forward 30 seconds">
+                    <i class="fas fa-rotate-right text-lg"></i>
+                    <span class="text-xs">30</span>
+                </button>
+            </div>
+
+            <!-- Speed control -->
+            <div class="flex justify-center mt-2">
+                <select id="playback-speed" class="bg-gray-700 text-white text-sm rounded px-2 py-1">
                     <option value="0.5">0.5x</option>
+                    <option value="0.75">0.75x</option>
                     <option value="1" selected>1x</option>
+                    <option value="1.25">1.25x</option>
                     <option value="1.5">1.5x</option>
+                    <option value="1.75">1.75x</option>
                     <option value="2">2x</option>
                 </select>
             </div>
         </div>
-
-        <!-- Loading Overlay -->
-        <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="animate-spin text-4xl text-white">
-                <iconify-icon icon="mdi:loading"></iconify-icon>
-            </div>
-        </div>
-
-        <!-- Hidden YouTube Player -->
-        <div id="youtubePlayer" class="opacity-0 absolute top-0 left-0 w-0 h-0"></div>
-
-        <!-- Theme Toggle -->
-        <button id="themeToggle" class="fixed top-4 right-4 p-2 pb-1 rounded-full bg-white dark:bg-gray-800 shadow-lg transition-colors">
-            <iconify-icon id="sunIcon" icon="mdi:weather-sunny" class="text-xl text-yellow-500 hidden"></iconify-icon>
-            <iconify-icon id="moonIcon" icon="mdi:weather-night" class="text-xl text-blue-400"></iconify-icon>
-        </button>
-
-        <!-- Disclaimer -->
-        <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-4 opacity-70 z-10">
-            This is an experimental tool for personal use only.
-        </p>
-
-        <!-- History Item Template -->
-        <template id="historyItemTemplate">
-            <div class="group flex items-center p-3 rounded-xl bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all cursor-pointer shadow-sm border border-transparent history-item">
-                <div class="relative">
-                    <img class="w-16 h-12 rounded-lg object-cover mr-3" src="">
-                    <div class="play-indicator absolute inset-0 flex items-center justify-center mr-3 bg-black bg-opacity-30 rounded-lg">
-                        <iconify-icon icon="mdi:play" class="text-white text-2xl"></iconify-icon>
-                    </div>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate video-title"></span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs text-primary-500 dark:text-primary-400 video-timestamp"></span>
-                            <span class="text-xs text-gray-500 dark:text-gray-100">/</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-100 video-duration"></span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">•</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">Last played</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400 video-age">Recently played</span>
-                        </div>
-                        <button class="delete-btn p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                            <iconify-icon icon="mdi:close" class="text-sm text-gray-500 dark:text-gray-400"></iconify-icon>
-                        </button>
-                    </div>
-                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded h-1 mt-1">
-                        <div class="bg-primary-500 dark:bg-primary-400 h-1 rounded progress-bar" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <!-- Search Results -->
-        <div id="resultsContainer" class="space-y-3" aria-live="polite"></div>
     </div>
 
-    <!-- Carica i moduli JavaScript -->
-    <script src="public/js/utils.js"></script>
-    <script src="public/js/event-bus.js"></script>
-    <script src="public/js/api-service.js"></script>
-    <script src="public/js/ui-manager.js"></script>
-    <script src="public/js/search-engine.js"></script>
-    <script src="player.js"></script>
-    <script src="public/js/main.js"></script>
+    <!-- Footer -->
+    <footer class="text-center text-gray-500 text-xs py-4 mt-auto mb-20">
+        <p>This is an experimental tool for personal use only.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/youtube-search.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/app.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js');
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/js/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrato con successo:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Registrazione Service Worker fallita:', error);
+                    });
+            });
         }
     </script>
 </body>

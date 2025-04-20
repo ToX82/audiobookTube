@@ -170,12 +170,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Player event listeners
     audioPlayer.onPlay(() => {
-        playPauseBtn.innerHTML = '<i class="fas fa-pause text-xl"></i>';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause text-white text-xl"></i>';
         showNowPlaying();
     });
 
     audioPlayer.onPause(() => {
-        playPauseBtn.innerHTML = '<i class="fas fa-play text-xl"></i>';
+        playPauseBtn.innerHTML = '<i class="fas fa-play text-white text-xl"></i>';
     });
 
     audioPlayer.onProgress((currentTime, duration) => {

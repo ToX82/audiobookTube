@@ -66,8 +66,13 @@ class YouTubeSearchService {
         var self = this;
         var targetUrl = 'https://www.youtube.com/watch?v=' + videoId;
         var initialUrl = AppConfig.getProxiedUrl(targetUrl);
+        var fetchOptions = {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+            }
+        };
 
-        return fetch(initialUrl).then(function(response) {
+        return fetch(initialUrl, fetchOptions).then(function(response) {
             if (!response.ok) {
                 throw new Error('Error fetching video data');
             }
@@ -134,8 +139,13 @@ class YouTubeSearchService {
         var encodedQuery = encodeURIComponent(query.trim());
         var targetUrl = this.searchUrl + encodedQuery;
         var searchUrl = AppConfig.getProxiedUrl(targetUrl);
+        var fetchOptions = {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+            }
+        };
 
-        return fetch(searchUrl).then(function(response) {
+        return fetch(searchUrl, fetchOptions).then(function(response) {
             if (!response.ok) {
                 throw new Error('Error in proxy response');
             }

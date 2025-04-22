@@ -151,7 +151,11 @@ class YouTubeSearchService {
             }
             return response.text();
         }).then(function(html) {
-            return self.parseYouTubeResults(html);
+            if (window.innerWidth < 768) {
+                return self.parseYouTubeResultsMobile(html);
+            } else {
+                return self.parseYouTubeResultsDesktop(html);
+            }
         }).catch(function(error) {
             console.error('Search error:', error);
             return [];
@@ -163,7 +167,170 @@ class YouTubeSearchService {
      * @param {String} html - HTML content from YouTube search page
      * @returns {Array} Array of video objects
      */
-    parseYouTubeResults(html) {
+    parseYouTubeResultsMobile(html) {
+        let videos = [];
+
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Cerca lo script con ytInitialData
+            const scripts = doc.querySelectorAll('script');
+            let ytInitialData = null;
+
+            for (const script of scripts) {
+                const text = script.textContent;
+                // Trova la variabile ytInitialData anche se è in formato escaped, poi decodifica e parsa
+                let jsonStrMatch = text.match(/var ytInitialData\s*=\s*('.*?'|\{.+?\});/) ||
+                                    text.match(/window\["ytInitialData"\]\s*=\s*('.*?'|\{.+?\});/);
+
+                if (jsonStrMatch && jsonStrMatch[1]) {
+                    let rawJson = jsonStrMatch[1];
+
+                    // Decodifica le sequenze escape tipo \x7b
+                    rawJson = rawJson.replace(/\\x([0-9A-Fa-f]{2})/g, function(match, p1) {
+                        return String.fromCharCode(parseInt(p1, 16));
+                    });
+
+                    rawJson = rawJson.replace(/\\"/g, '"');
+                    // Rimuovi il primo e l'ultimo carattere
+                    rawJson = rawJson.slice(1, -1);
+
+                    try {
+                        ytInitialData = JSON.parse(rawJson);
+                    } catch (e) {
+                        console.error('Errore nel parsing di ytInitialData decodificato', e);
+                    }
+                    break;
+                }
+
+            }
+
+            if (!ytInitialData) {
+                return videos;
+            }
+
+            if (window.innerWidth < 768) {
+                videos = this.listVideosMobile(ytInitialData);
+            } else {
+                videos = this.listVideosDesktop(ytInitialData);
+            }
+        } catch (error) {
+            console.error('Error parsing YouTube results:', error);
+        }
+
+        return videos;
+    }
+
+    listVideosMobile(ytInitialData) {
+        let videos = [];
+        let videoItems = ytInitialData.contents.sectionListRenderer.contents[0].itemSectionRenderer.contents;
+
+        // filter only elements with videoWithContextRenderer
+        videoItems = videoItems.filter(item => item.videoWithContextRenderer);
+
+        for (const item of videoItems) {
+            if (item.videoWithContextRenderer) {
+                const video = item.videoWithContextRenderer;
+                const videoId = video.videoId;
+
+                // Skip non-video items or videos without ID
+                if (!videoId) {
+                    continue;
+                }
+
+                const title = video.headline.runs[0].text;
+                const thumbnail = video.thumbnail.thumbnails[0].url;
+                const author = video.shortBylineText.runs[0].text;
+
+                // Get length in seconds
+                let lengthSeconds = 0;
+                if (video.lengthText) {
+                    // Parse duration format (e.g., "12:34" or "1:23:45")
+                    const lengthParts = video.lengthText.runs[0].text.split(':').map(Number);
+                    if (lengthParts.length === 2) {
+                        // MM:SS format
+                        lengthSeconds = lengthParts[0] * 60 + lengthParts[1];
+                    } else if (lengthParts.length === 3) {
+                        // HH:MM:SS format
+                        lengthSeconds = lengthParts[0] * 3600 + lengthParts[1] * 60 + lengthParts[2];
+                    }
+                }
+
+                videos.push({
+                    videoId,
+                    title,
+                    author,
+                    thumbnail,
+                    lengthSeconds
+                });
+            }
+        }
+
+        return videos;
+    }
+
+    listVideosDesktop(ytInitialData) {
+        const videoItems = ytInitialData.contents
+                .twoColumnSearchResultsRenderer.primaryContents
+                .sectionListRenderer.contents[0]
+                .itemSectionRenderer.contents;
+
+        for (const item of videoItems) {
+            if (item.videoRenderer) {
+                const video = item.videoRenderer;
+                const videoId = video.videoId;
+
+                // Skip non-video items or videos without ID
+                if (!videoId) {
+                    continue;
+                }
+
+                const title = video.title.runs[0].text;
+                const thumbnail = video.thumbnail.thumbnails.pop().url;
+
+                // Get author name
+                let author = 'Unknown Channel';
+                if (video.ownerText && video.ownerText.runs && video.ownerText.runs.length > 0) {
+                    author = video.ownerText.runs[0].text;
+                }
+
+                // Get length in seconds
+                let lengthSeconds = 0;
+                if (video.lengthText && video.lengthText.simpleText) {
+                    // Parse duration format (e.g., "12:34" or "1:23:45")
+                    const lengthParts = video.lengthText.simpleText.split(':').map(Number);
+                    if (lengthParts.length === 2) {
+                        // MM:SS format
+                        lengthSeconds = lengthParts[0] * 60 + lengthParts[1];
+                    } else if (lengthParts.length === 3) {
+                        // HH:MM:SS format
+                        lengthSeconds = lengthParts[0] * 3600 + lengthParts[1] * 60 + lengthParts[2];
+                    }
+                }
+
+                videos.push({
+                    videoId,
+                    title,
+                    author,
+                    thumbnail,
+                    lengthSeconds
+                });
+
+                // Limit to 20 results
+                if (videos.length >= 20) {
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Parse YouTube search results HTML
+     * @param {String} html - HTML content from YouTube search page
+     * @returns {Array} Array of video objects
+     */
+    parseYouTubeResultsDesktop(html) {
         const videos = [];
 
         try {

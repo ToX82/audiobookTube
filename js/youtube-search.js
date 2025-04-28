@@ -271,10 +271,7 @@ class YouTubeSearchService {
     }
 
     listVideosDesktop(ytInitialData) {
-        const videoItems = ytInitialData.contents
-                .twoColumnSearchResultsRenderer.primaryContents
-                .sectionListRenderer.contents[0]
-                .itemSectionRenderer.contents;
+        const videoItems = ytInitialData.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents;
 
         for (const item of videoItems) {
             if (item.videoRenderer) {

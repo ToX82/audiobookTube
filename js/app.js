@@ -24,6 +24,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const playPauseBtn = document.getElementById('play-pause-btn');
     const playbackSpeedSelect = document.getElementById('playback-speed');
 
+    // State for cumulative skipping
+    let pendingSkipAmount = 0;
+    let skipTimer = null;
+    const SKIP_DELAY = 400; // ms delay before performing the actual seek
+
+    // Helper function for button click visual feedback
+    function applyButtonClickFeedback(buttonElement) {
+        if (!buttonElement) { return; }
+        buttonElement.classList.add('button-clicked-feedback');
+        setTimeout(() => {
+            buttonElement.classList.remove('button-clicked-feedback');
+        }, 150); // Duration should be slightly longer than CSS transition
+    }
+
     // Initialize theme
     function initTheme() {
         const currentTheme = storageManager.getTheme();
@@ -94,32 +108,57 @@ document.addEventListener('DOMContentLoaded', function() {
         audioPlayer.togglePlayPause();
     });
 
+    // Function to handle skip button clicks (cumulative)
+    function handleSkip(seconds) {
+        if (!audioPlayer.duration || audioPlayer.duration <= 0) { return; }
+
+        clearTimeout(skipTimer); // Clear any pending seek
+        pendingSkipAmount += seconds; // Accumulate skip amount
+
+        // Calculate target time based on *current* player time + total pending skip
+        const targetTime = Math.max(0, Math.min(audioPlayer.currentTime + pendingSkipAmount, audioPlayer.duration));
+
+        // Immediate UI update to show the *final* target position
+        const percent = (targetTime / audioPlayer.duration) * 100;
+        progressBar.style.width = `${percent}%`;
+        seekSlider.value = percent;
+        currentTimeDisplay.textContent = formatTime(targetTime);
+
+        // Set timer to perform the actual seek after a delay
+        skipTimer = setTimeout(() => {
+            const finalSeekTime = Math.max(0, Math.min(audioPlayer.currentTime + pendingSkipAmount, audioPlayer.duration));
+            audioPlayer.seek(finalSeekTime);
+            pendingSkipAmount = 0; // Reset accumulator
+            skipTimer = null;
+        }, SKIP_DELAY);
+    }
+
     // Skip backward 5 seconds
     const skipBackward5Btn = document.getElementById('skip-backward-5-btn');
     skipBackward5Btn.addEventListener('click', () => {
-        audioPlayer.skipBackward(5);
-        updateProgressBarImmediate(5, false); // Immediate feedback
+        applyButtonClickFeedback(skipBackward5Btn);
+        handleSkip(-5);
     });
 
     // Skip backward 30 seconds
     const skipBackward30Btn = document.getElementById('skip-backward-30-btn');
     skipBackward30Btn.addEventListener('click', () => {
-        audioPlayer.skipBackward(30);
-        updateProgressBarImmediate(30, false); // Immediate feedback
+        applyButtonClickFeedback(skipBackward30Btn);
+        handleSkip(-30);
     });
 
     // Skip forward 5 seconds
     const skipForward5Btn = document.getElementById('skip-forward-5-btn');
     skipForward5Btn.addEventListener('click', () => {
-        audioPlayer.skipForward(5);
-        updateProgressBarImmediate(5, true); // Immediate feedback
+        applyButtonClickFeedback(skipForward5Btn);
+        handleSkip(5);
     });
 
     // Skip forward 30 seconds
     const skipForward30Btn = document.getElementById('skip-forward-30-btn');
     skipForward30Btn.addEventListener('click', () => {
-        audioPlayer.skipForward(30);
-        updateProgressBarImmediate(30, true); // Immediate feedback
+        applyButtonClickFeedback(skipForward30Btn);
+        handleSkip(30);
     });
 
     playbackSpeedSelect.addEventListener('change', () => {
@@ -127,32 +166,41 @@ document.addEventListener('DOMContentLoaded', function() {
         audioPlayer.setPlaybackRate(speed);
     });
 
-    // Function to immediately update progress bar for better UX feedback when skipping
-    function updateProgressBarImmediate(seconds, forward) {
-        if (!audioPlayer.currentTime || !audioPlayer.duration) {return;}
+    // Progress bar and seeking
+    const progressBarContainer = progressBar.parentElement; // Get the container
 
-        // Calculate new position
-        let newTime;
-        if (forward) {
-            newTime = Math.min(audioPlayer.currentTime + seconds, audioPlayer.duration);
-        } else {
-            newTime = Math.max(audioPlayer.currentTime - seconds, 0);
-        }
+    // Handle clicks on the progress bar container for direct seeking
+    progressBarContainer.addEventListener('click', (event) => {
+        if (!audioPlayer.duration || audioPlayer.duration <= 0) { return; } // Need duration to seek
 
-        // Update displayed time and progress bar
-        currentTimeDisplay.textContent = formatTime(newTime);
-        const percent = audioPlayer.duration > 0 ? (newTime / audioPlayer.duration) * 100 : 0;
+        const rect = progressBarContainer.getBoundingClientRect();
+        const offsetX = event.clientX - rect.left; // Click position relative to the bar
+        const barWidth = progressBarContainer.offsetWidth;
+        const percent = Math.max(0, Math.min(100, (offsetX / barWidth) * 100)); // Ensure percent is between 0 and 100
+
+        const seekTime = (percent / 100) * audioPlayer.duration;
+
+        // Immediate visual feedback
         progressBar.style.width = `${percent}%`;
         seekSlider.value = percent;
-    }
+        currentTimeDisplay.textContent = formatTime(seekTime);
 
-    // Progress bar and seeking
+        // Perform the actual seek
+        audioPlayer.seek(seekTime);
+    });
+
+    // Handle dragging the seek slider (existing functionality)
     seekSlider.addEventListener('input', () => {
+        if (!audioPlayer.duration || audioPlayer.duration <= 0) { return; }
         const percent = seekSlider.value;
         progressBar.style.width = `${percent}%`;
+        // Update time display while dragging for better feedback
+        const seekTime = (percent / 100) * audioPlayer.duration;
+        currentTimeDisplay.textContent = formatTime(seekTime);
     });
 
     seekSlider.addEventListener('change', () => {
+        if (!audioPlayer.duration || audioPlayer.duration <= 0) { return; }
         const percent = seekSlider.value;
         const seekTime = (percent / 100) * audioPlayer.duration;
         audioPlayer.seek(seekTime);

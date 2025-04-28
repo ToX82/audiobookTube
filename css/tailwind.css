@@ -148,3 +148,12 @@ body {
         min-width: 44px;
     }
 }
+
+/* Add this for button click feedback */
+.button-clicked-feedback {
+    /* Equivalent standard CSS for: @apply transition-transform duration-100 ease-out scale-95; */
+    transition-property: transform;
+    transition-timing-function: ease-out;
+    transition-duration: 100ms;
+    transform: scale(0.95);
+}

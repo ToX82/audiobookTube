@@ -1,5 +1,7 @@
 /* Custom styles on top of Tailwind */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* Theme Variables */
 :root {
     /* Dark theme (default) */
@@ -60,9 +62,6 @@ body {
     transition: background-color 0.3s, color 0.3s;
     font-family: 'Inter', sans-serif; /* Use a modern font */
 }
-/* Import Inter font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 .bg-gray-900 {
     background-color: var(--bg-primary);
 }
@@ -121,7 +120,6 @@ header {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 1px var(--accent-color);
 }
-
 #search-button {
     color: var(--accent-color);
     transition: color 0.2s ease-in-out;
@@ -185,13 +183,11 @@ header {
     background-color: rgba(var(--accent-color-rgb, 59, 130, 246), 0.15); /* Slightly more opaque accent background */
     border-left-color: var(--accent-color); /* Accent color border for playing item */
 }
-
 .video-item .thumbnail-container {
     position: relative; /* Needed for absolute positioning of progress bar */
     border-radius: 4px; /* Rounded corners for thumbnail */
     overflow: hidden; /* Hide overflow for rounded corners */
 }
-
 .video-item .thumbnail-container .h-full {
     background-color: var(--progress-fill); /* Use progress fill color */
 }
@@ -207,15 +203,12 @@ header {
 #now-playing-container {
     margin-bottom: 16px; /* Adjust margin */
 }
-
 #now-playing-thumbnail {
     border-radius: 4px; /* Rounded corners for thumbnail */
 }
-
 #now-playing-title {
     color: var(--text-primary);
 }
-
 #current-time,
 #duration {
     color: var(--text-secondary);
@@ -226,12 +219,10 @@ header {
     background-color: var(--progress-bg); /* Use progress background */
     height: 6px; /* Make progress bar slightly thicker */
 }
-
 #progress-bar {
     background-color: var(--progress-fill); /* Use progress fill color */
     height: 100%; /* Fill the container height */
 }
-
 #seek-slider {
     cursor: pointer;
     height: 100%; /* Match container height */
@@ -245,7 +236,6 @@ header {
     appearance: none;
     background: transparent; /* Make slider track transparent */
 }
-
 #seek-slider::-webkit-slider-thumb {
     appearance: none;
     width: 16px; /* Make thumb slightly larger */
@@ -257,7 +247,6 @@ header {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Add subtle shadow to thumb */
     transition: background-color 0.2s ease-in-out;
 }
-
 #seek-slider::-moz-range-thumb {
     width: 16px;
     height: 16px;
@@ -267,11 +256,9 @@ header {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     transition: background-color 0.2s ease-in-out;
 }
-
 #seek-slider:hover::-webkit-slider-thumb {
     background: var(--button-hover-bg); /* Darker accent on hover */
 }
-
 #seek-slider:hover::-moz-range-thumb {
     background: var(--button-hover-bg); /* Darker accent on hover */
 }
@@ -281,17 +268,14 @@ header {
     color: var(--text-secondary); /* Default button color */
     transition: color 0.2s ease-in-out;
 }
-
 .flex.justify-center.items-center.space-x-2.sm\:space-x-4 button:hover {
     color: var(--accent-color); /* Accent color on hover */
 }
-
 #play-pause-btn {
     background-color: var(--button-bg); /* Use button background */
     color: var(--button-text); /* Use button text color */
     transition: background-color 0.2s ease-in-out;
 }
-
 #play-pause-btn:hover {
     background-color: var(--button-hover-bg); /* Darker button background on hover */
 }

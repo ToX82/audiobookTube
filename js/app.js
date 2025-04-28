@@ -245,42 +245,42 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update progress in history view if visible
             const historyTabButton = document.getElementById('tab-history');
             if (historyTabButton && historyTabButton.classList.contains('active')) {
-                 const videoItemElement = document.querySelector(`.video-item[data-video-id="${audioPlayer.currentVideo.videoId}"]`);
-                 if (videoItemElement) {
-                     // Update progress bar in history item
-                     const historyProgressBar = videoItemElement.querySelector('.thumbnail-container .h-full');
-                     if (historyProgressBar) {
-                         historyProgressBar.style.width = `${percent}%`;
-                     }
+                const videoItemElement = document.querySelector(`.video-item[data-video-id="${audioPlayer.currentVideo.videoId}"]`);
+                if (videoItemElement) {
+                    // Update progress bar in history item
+                    const historyProgressBar = videoItemElement.querySelector('.thumbnail-container .h-full');
+                    if (historyProgressBar) {
+                        historyProgressBar.style.width = `${percent}%`;
+                    }
 
-                     // Update percentage text in history item
-                     let progressTextElement = videoItemElement.querySelector('.text-xs.text-blue-400');
-                     if (!progressTextElement && percent > 0 && percent < 100) {
-                         // Create the element if it doesn't exist and progress is > 0 and < 100
-                         progressTextElement = document.createElement('div');
-                         progressTextElement.className = 'text-xs text-blue-400';
-                         const videoInfoContainer = videoItemElement.querySelector('.flex-grow.min-w-0');
-                         if (videoInfoContainer) {
-                             // Insert before lastPlayedDisplay if it exists, otherwise at the end
-                             const lastPlayedDisplay = videoInfoContainer.querySelector('.text-xs.text-gray-500');
-                             if (lastPlayedDisplay) {
-                                 videoInfoContainer.insertBefore(progressTextElement, lastPlayedDisplay);
-                             } else {
-                                 videoInfoContainer.appendChild(progressTextElement);
-                             }
-                         }
-                     }
+                    // Update percentage text in history item
+                    let progressTextElement = videoItemElement.querySelector('.text-xs.text-blue-400');
+                    if (!progressTextElement && percent > 0 && percent < 100) {
+                        // Create the element if it doesn't exist and progress is > 0 and < 100
+                        progressTextElement = document.createElement('div');
+                        progressTextElement.className = 'text-xs text-blue-400';
+                        const videoInfoContainer = videoItemElement.querySelector('.flex-grow.min-w-0');
+                        if (videoInfoContainer) {
+                            // Insert before lastPlayedDisplay if it exists, otherwise at the end
+                            const lastPlayedDisplay = videoInfoContainer.querySelector('.text-xs.text-gray-500');
+                            if (lastPlayedDisplay) {
+                                videoInfoContainer.insertBefore(progressTextElement, lastPlayedDisplay);
+                            } else {
+                                videoInfoContainer.appendChild(progressTextElement);
+                            }
+                        }
+                    }
 
-                     if (progressTextElement) {
-                         if (percent > 0 && percent < 100) {
-                             progressTextElement.textContent = `${percent.toFixed(0)}% played`;
-                             progressTextElement.classList.remove('hidden'); // Ensure it's visible
-                         } else {
-                             // Hide or remove the element if progress is 0 or 100
-                             progressTextElement.classList.add('hidden');
-                         }
-                     }
-                 }
+                    if (progressTextElement) {
+                        if (percent > 0 && percent < 100) {
+                            progressTextElement.textContent = `${percent.toFixed(0)}% played`;
+                            progressTextElement.classList.remove('hidden'); // Ensure it's visible
+                        } else {
+                            // Hide or remove the element if progress is 0 or 100
+                            progressTextElement.classList.add('hidden');
+                        }
+                    }
+                }
             }
         }
     });
@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
             progressBar.style.width = `${percent}%`;
             seekSlider.value = percent;
         } else {
-             // Reset UI if no progress is found (new video or cleared progress)
+            // Reset UI if no progress is found (new video or cleared progress)
             currentTimeDisplay.textContent = '0:00';
             durationDisplay.textContent = '0:00';
             progressBar.style.width = '0%';

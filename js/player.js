@@ -223,6 +223,12 @@ class AudioPlayer {
             });
         }
 
+        // Show the player container now that a video is loaded/cued
+        const playerContainer = document.getElementById('player-container');
+        if (playerContainer) {
+            playerContainer.classList.remove('hidden');
+        }
+
         // If the video has generic title/author, update it with actual YouTube data after loading
         if (video.title === 'YouTube Video' && video.author === 'Unknown') {
             // Set a timeout to get the video data from the player once it's loaded

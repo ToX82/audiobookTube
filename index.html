@@ -80,7 +80,7 @@
     </main>
 
     <!-- Player fixed at bottom -->
-    <div id="player-container" class="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 p-4">
+    <div id="player-container" class="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 p-4 hidden">
         <div class="container mx-auto">
             <!-- Now playing -->
             <div id="now-playing-container" class="hidden mb-3">
@@ -102,7 +102,7 @@
             <!-- Progress bar -->
             <div class="mb-4">
                 <div class="relative h-1 bg-gray-700 rounded-full">
-                    <div id="progress-bar" class="absolute left-0 top-0 h-full bg-blue-500 rounded-full" style="width: 0%"></div>
+                    <div id="progress-bar" class="absolute left-0 top-0 h-full bg-blue-500 rounded-full" style="width: 0%;"></div>
                     <input
                         id="seek-slider"
                         type="range"

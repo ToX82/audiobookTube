@@ -26,8 +26,6 @@ The repository is organized to keep the codebase clear and maintainable:
   Contains JavaScript files responsible for the core functionality and interactivity of the player.
 - `css/`  
   Stylesheets defining the visual layout and design of the app.
-- `assets/`  
-  Static assets including icons, images, and other media resources.
 - `README.md`  
   This documentation file.
 
